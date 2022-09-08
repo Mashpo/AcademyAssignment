@@ -1,0 +1,321 @@
+body {
+  margin: 0;
+  padding: 0;
+}  
+
+html {
+  margin: 0;
+  padding: 0;
+  font-family: "Lucida Sans", sans-serif;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* start for vProfile.js----------------------- */
+.col-2 {width: 10%; text-align: left; padding: 15px;}
+
+.content table {
+/* border: 2px solid forestgreen; */
+border-collapse: collapse;
+width: 925px;
+/* height: 200px; */
+}
+
+.content th {
+text-align: left;
+/* border: 1px solid black; */
+padding: 8px;
+/* text-decoration:underline; */
+}
+
+.content td {
+  text-align: left;
+  border: 2px solid darkslategray;
+  padding: 8px;
+  width: 925px;
+  /* max-width: 200px; */
+}
+
+.table_body tr:nth-child(odd) {
+  background-color: #dddddd;
+}
+
+.table_body tr:hover {background-color: coral;}
+
+.content li {
+  list-style-type: none;
+  
+}
+
+.content th button {
+  /* background-color: rgb(97, 206, 166); */
+  background-color: #c1cbf8;
+  border: 1.5px solid darkslategray;
+  border-radius: 3px;
+}
+
+.content th button:hover {
+  /* background-color: rgb(97, 206, 166); */
+  background-color: #b4bfe8;
+  transform: translateY(-2px);
+  border: 1.5px solid darkslategray;
+  border-radius: 3px;
+}
+
+/* .content td button:hover {
+  transform: translateY(-2px);
+} */
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+
+/* end for vProfile.js --------------------------*/
+
+/* start for navbar & header bar----------------------------*/
+* {
+  box-sizing: border-box;
+}
+
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+[class*="col-"] {
+  float: left;
+  /* padding: 15px; */
+}
+
+/* new stuff - CSS flex box - for UI arrangement */
+/* https://www.w3schools.com/css/css3_flexbox.asp */
+.container-flex-row{     
+  display: flex;
+  flex-direction: row;
+  background-color: blue;
+}
+
+.container-flex-col{     
+  display: flex;
+  flex-direction: column;
+  background-color: red;
+}
+
+.container-flex-basis-half {
+  flex-basis: 50%;
+  background-color: black;
+  color: white;
+}
+
+.container-flex-basis-quarter {
+  flex-basis: 25%;
+  background-color: black;
+  color: white;
+}
+
+/* navbar & content */
+.col-1 {width: 20%; padding: 15px;}
+.col-2 {width: 80%; text-align: left; padding: 15px;}
+
+/* header */
+.col-3 {width: 100%; padding: 15px;}
+.col-4 {width: 100%; text-align: left; padding: 0px 25px;}  /*padding: (height) (width);
+
+/* Kanban Board */
+.col-5 {width: 20%;}
+.col-6 {width: 100%;}
+
+/* sample pre-set % range */
+.col-1z {width: 8.33%;}
+.col-2z {width: 16.66%;}
+.col-3z {width: 25%;}
+.col-4z {width: 33.33%;}
+.col-5z {width: 41.66%;}
+.col-6z {width: 50%;}
+.col-7z {width: 58.33%;}
+.col-8z {width: 66.66%;}
+.col-9z {width: 75%;}
+.col-10z {width: 83.33%;}
+.col-11z {width: 91.66%;}
+.col-12z {width: 100%;}
+
+.header1 {
+  background-color: #334fcc;
+  color: #ffffff;
+  /* padding: 15px; */
+  /* height: 115px; */
+  border-radius: 0px;
+
+}
+
+.header2 {
+  background-color: #1c2e7b;
+  color: #ffffff;
+  /* padding: 15px; */
+  border-radius: 0px;
+}
+
+.header3 {
+  display: block;
+  padding: 8px;
+  margin-bottom: 7px;
+  color: #000000;
+  background-color: #41ccfe;
+  text-decoration:underline;
+  border-radius: 25px;
+
+}
+
+.menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  background-color: #41ccfe;
+  border-radius: 25px;
+
+}
+
+.menu li a {
+  display: block;
+  padding: 8px;
+  margin-bottom: 7px;
+  color: #ffffff;
+  background-color: #2cacda;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  text-decoration:none;
+  border-radius: 25px;
+}
+
+.menu li a:hover {
+  transform: translateY(-2px);
+  /* box-shadow: #555; */
+}
+
+/* .menu li a:hover {
+  background-color: #0099cc;
+} */
+
+.menu li a.active {
+  /* background-color: #1d418d; */
+  background-color: darkslateblue;
+  color: white;
+}
+
+.menu li a:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+
+.menu li a.logout_btn{
+  background-color: #d84747;
+}
+
+/* end for navbar & header bar--------------------------------*/
+
+/* start for login.js --------------------------------*/
+
+/* Username & Password */
+.col-login {width: 100%; padding: 15px 25px;}  /*padding: (height) (width);
+
+/* pop-up */
+/* Popup container - can be anything you want */
+.popup {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* The actual popup */
+.popup .popuptext {
+  visibility: hidden;
+  width: 160px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -80px;
+}
+
+/* Popup arrow */
+.popup .popuptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+.popup .show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s;
+}
+
+/* Add animation (fade in the popup) */
+@-webkit-keyframes fadeIn {
+  from {opacity: 0;} 
+  to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity:1 ;}
+}
+
+
+/* end for login.js --------------------------------*/
+
+
+
