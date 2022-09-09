@@ -162,7 +162,7 @@ export const CreateUser = (props) => {
                 <td> 
                   <input 
                     onChange={(e) => {
-                      setUsername(e.target.value) 
+                      setUsername(e.target.value.trim()) 
                     }} 
                     name = "username" 
                     type="text" 

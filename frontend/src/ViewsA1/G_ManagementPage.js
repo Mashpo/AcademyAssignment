@@ -71,7 +71,7 @@ export const G_MANAGEMENT_PAGE = (props) => {
 
              {/*Add Group*/}
              <form className="form-inline" onSubmit={handleSave}>
-                <input type="text" className="form-control" placeholder="Add Group" autoFocus aria-describedby="basic-addon1" onChange={e => setNewGroup(e.target.value)}/>
+                <input type="text" className="form-control" placeholder="Add Group" autoFocus aria-describedby="basic-addon1" onChange={e => setNewGroup(e.target.value.trim())}/>
                 <button type="submit" className="btn btn-default" href="#">Save</button>
             </form>
 

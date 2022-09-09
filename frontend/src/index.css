@@ -95,6 +95,7 @@ padding: 8px;
 .content th button:hover {
   /* background-color: rgb(97, 206, 166); */
   background-color: #6b81cd;
+  color:white;
   transform: translateY(-2px);
   border: 1.5px solid darkslategray;
   border-radius: 3px;
@@ -168,6 +169,9 @@ button:hover {
 /* Kanban Board */
 .col-5 {width: 20%;}
 .col-6 {width: 100%;}
+.col-6-Border {width: 100%; }
+.col-7 {width: 33.33%;}
+.col-8 {width: 66.66%;}
 
 /* sample pre-set % range */
 .col-1z {width: 8.33%;}
