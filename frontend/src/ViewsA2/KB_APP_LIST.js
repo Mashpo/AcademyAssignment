@@ -9,12 +9,13 @@ function KB_APP_LIST(props){
         props.setDataHeader("Kanban Board - App List")
     },[])
 
+    const [ActiveButtonBGC, setActiveButtonBGC] = useState("")
+    const test = ["1","2","3","4","5"];
 
-    const test = [1,2,3,4,5];
+    let hoverColor = false
+    let test3 = false
 
-    let selectedColor = true
-
-
+    console.log(ActiveButtonBGC)
 
     return(
         <>
@@ -29,13 +30,14 @@ function KB_APP_LIST(props){
                             key={test} 
                             style={{
                                 marginRight: "10px"
-                                ,border: "none"
-                                ,color: "white"
-                                ,backgroundColor:(selectedColor === true? "#2cacda" : "darkslateblue")
+                                ,border: "1.5px solid darkslategray"
+                                ,borderRadius: "3px"
+                                ,backgroundColor:(ActiveButtonBGC === test?  "#6b81cd" : "#b4bfe8")
                             }}
                             
                             onClick={()=>{
                                 console.log(test)
+                                setActiveButtonBGC(test)
                             }}
                         >
                             {"app" + test}

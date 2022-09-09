@@ -89,11 +89,12 @@ padding: 8px;
   background-color: #c1cbf8;
   border: 1.5px solid darkslategray;
   border-radius: 3px;
+  cursor: pointer;
 }
 
 .content th button:hover {
   /* background-color: rgb(97, 206, 166); */
-  background-color: #b4bfe8;
+  background-color: #6b81cd;
   transform: translateY(-2px);
   border: 1.5px solid darkslategray;
   border-radius: 3px;
@@ -102,6 +103,10 @@ padding: 8px;
 /* .content td button:hover {
   transform: translateY(-2px);
 } */
+
+button{
+  cursor: pointer;
+}
 
 button:hover {
   transform: translateY(-2px);
