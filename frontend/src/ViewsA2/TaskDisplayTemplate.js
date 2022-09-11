@@ -16,10 +16,20 @@ function TaskDisplayTemplate(data){
                     onMouseEnter={()=>{setIsHover(true); setIsHover2(data)}}
                     onMouseLeave={()=>{setIsHover(false); setIsHover2(data)}}
                 >
-                    
+                    {/*============ task name ============*/}
+                    <p style={{fontSize: "small", textAlign:"center"}}>
+                        {data}
+                    </p>
+                    {/*============ task id ============*/}
+                    <p style={{fontSize: "small", textAlign:"right"}}>
+                        id: {data}
+                    </p>
+                    {/*============ task other info ============*/}
                     <p style={{fontSize: "small"}}>
-                        {/* task name */}
-                        Task: {data}
+                        Description: {data}
+                        <br/>
+                        Notes: {data}
+                        <br/>
 
                     </p>
                 
