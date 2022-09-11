@@ -44,7 +44,7 @@ function Navbar(){
                     <ul>
                         {/* for all users */}
                         <h4 className="header3"> Task Management</h4>
-                        <li><a href="/KB_APP_LIST">Kanban Board</a></li>
+                        <li><a href="/KanbanBoardPage">Kanban Board</a></li>
                     </ul>
 
                     <ul>

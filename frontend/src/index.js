@@ -19,7 +19,7 @@
   import Navbar from "./ViewsA1/NavbarView";
 
 //==================Task Management System Modules-[Assignment 2]====================
-  import KB_APP_LIST from "./ViewsA2/KB_APP_LIST";
+  import KanbanBoardPage from "./ViewsA2/KanbanBoardPage";
 
 
 
@@ -54,7 +54,7 @@ export default function App() {
                   <Route path="/U_MANAGEMENT_PAGE" element={<U_MANAGEMENT_PAGE setDataHeader={setHeaderData}/>}/>
 
                   {/* ==================Task Management System Routes-[Assignment 2]==================== */}
-                  <Route path="/KB_APP_LIST" element={<KB_APP_LIST setDataHeader={setHeaderData}/>}/>
+                  <Route path="/KanbanBoardPage" element={<KanbanBoardPage setDataHeader={setHeaderData}/>}/>
 
 
                   {/* ==================Undeclared routes will display InvalidPage instead==================== */}
