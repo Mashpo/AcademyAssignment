@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react'
 
 
-function TaskDisplayTemplate(data){
+function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData, ActiveAuditTrail, setActiveAuditTrail){
 
     //================ Task Display ================
     const [IsHover, setIsHover] = useState(false)
     const [IsHover2, setIsHover2] = useState()
 
     //================ Audit Trail button ================
-    const [ActiveAuditTrail, setActiveAuditTrail] = useState(false)
     const [IsHover3, setIsHover3] = useState(false)
     const [IsHover4, setIsHover4] = useState()
+
+    //================ Audit Trail Popup display ================
+    const togglePopup = () => {
+        setIsOpen_AuditTrail(!isOpen_AuditTrail);
+    }
+   
 
     return(
         <>
@@ -39,6 +44,18 @@ function TaskDisplayTemplate(data){
                         Notes: {data}
                         <br/>
                     </p>
+
+                    {/*============ task hover over info ============*/}
+                    <span className="tooltiptext" style={{backgroundColor:"lightgray"}}>
+                        <p style={{fontSize: "small", textAlign:"center", padding:"5px"}}>
+                            id: {data}
+                            <br/>
+                            Creator: {data}
+                            <br/>
+                            Date Created: {data}
+                        </p>
+                    </span>
+
                     {/*============ Audit Trail Button ============*/}
                     <button 
                         style={{
@@ -53,8 +70,9 @@ function TaskDisplayTemplate(data){
                         
                         onClick={()=>{
                             setActiveAuditTrail(data)
-
-                            // set Audit trail stuff to display
+                            setSelectedTaskData(data)
+                            //Audit trail stuff to display
+                            togglePopup()
                         }}
 
                         onMouseEnter={()=>{setIsHover3(true); setIsHover4(data)}}
@@ -63,16 +81,6 @@ function TaskDisplayTemplate(data){
                         Audit Trail
                     </button>
 
-
-                    <span className="tooltiptext">
-                        <p style={{fontSize: "small", textAlign:"center", padding:"5px"}}>
-                            id: {data}
-                            <br/>
-                            Creator: {data}
-                            <br/>
-                            Date Created: {data}
-                        </p>
-                    </span>
                 </div>
             )}
         </>

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react'
 import TaskDisplayTemplate from './TaskDisplayTemplate'
 import NoTaskDataTemp from './NoTaskDataTemp'
 import ButtonsMap from '../ComponentsA2/ButtonsMap'
+import Popup from "./PopupTemplate";
+
 
 function KanbanBoardPage(props){
     useEffect(()=>{
@@ -28,6 +30,16 @@ function KanbanBoardPage(props){
     const Done_data = ["done 1","done 2","done 3","done 4","done 5"];
     const Close_data = ["close 1","close 2","close 3","close 4","close 5"];
 
+    //================ Audit Trail button ================
+    const [ActiveAuditTrail, setActiveAuditTrail] = useState()
+    //================ Audit Trail Popup display ================
+    const [selectedTaskData, setSelectedTaskData] = useState();
+    const [isOpen_AuditTrail, setIsOpen_AuditTrail] = useState(false);
+    const togglePopup = () => {
+        setActiveAuditTrail();
+        setIsOpen_AuditTrail(!isOpen_AuditTrail);
+    }
+    
 
     return(
         <>
@@ -94,7 +106,7 @@ function KanbanBoardPage(props){
                             </p>
                         </h3>
                         
-                        {Open_data? TaskDisplayTemplate(Open_data):NoTaskDataTemp()}
+                        {Open_data? TaskDisplayTemplate(Open_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData, ActiveAuditTrail, setActiveAuditTrail):NoTaskDataTemp()}
                     </div>
                     
                     {/*~~~~~~~~~~ To Do ~~~~~~~~~~*/}
@@ -106,7 +118,7 @@ function KanbanBoardPage(props){
                             </p>
                         </h3>
                         
-                        {TaskDisplayTemplate(ToDo_data)}
+                        {ToDo_data? TaskDisplayTemplate(ToDo_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData, ActiveAuditTrail, setActiveAuditTrail):NoTaskDataTemp()}
                     </div>
                     
                     {/*~~~~~~~~~~ Doing~~~~~~~~~~*/}
@@ -119,7 +131,7 @@ function KanbanBoardPage(props){
                             </p>
                         </h3>
 
-                        {TaskDisplayTemplate(Doing_data)}
+                        {Doing_data? TaskDisplayTemplate(Doing_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData, ActiveAuditTrail, setActiveAuditTrail):NoTaskDataTemp()}
                     </div>
                     
                     {/*~~~~~~~~~~ Done ~~~~~~~~~~*/}
@@ -132,7 +144,7 @@ function KanbanBoardPage(props){
                             </p>
                         </h3>
 
-                        {TaskDisplayTemplate(Done_data)}
+                        {Done_data? TaskDisplayTemplate(Done_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData, ActiveAuditTrail, setActiveAuditTrail):NoTaskDataTemp()}
                     </div>
 
                     {/*~~~~~~~~~~ Close ~~~~~~~~~~*/}
@@ -145,9 +157,19 @@ function KanbanBoardPage(props){
                             </p>
                         </h3>
 
-                        {TaskDisplayTemplate(Close_data)}
+                        {Close_data? TaskDisplayTemplate(Close_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData, ActiveAuditTrail, setActiveAuditTrail):NoTaskDataTemp()}
                     </div>
             </div>
+
+            {/* ================ Audit Trail Popup display ================ */}
+            {isOpen_AuditTrail && <Popup
+                content={<>
+                <b>Audit Trail: {selectedTaskData}</b>
+                <p>{selectedTaskData}</p>
+                <button onClick={()=>{console.log("test")}}>Test button</button>
+                </>}
+                handleClose={togglePopup}
+            />}
         </>
     )
 
