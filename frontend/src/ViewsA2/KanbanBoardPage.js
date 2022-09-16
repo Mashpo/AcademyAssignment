@@ -4,6 +4,7 @@ import TaskDisplayTemplate from './TaskDisplayTemplate'
 import NoTaskDataTemp from './NoTaskDataTemp'
 import ButtonsMap from '../ComponentsA2/ButtonsMap'
 import Popup from "./PopupTemplate";
+import ButtonTemplate from '../ComponentsA2/ButtonTemplate';
 
 
 function KanbanBoardPage(props){
@@ -30,12 +31,35 @@ function KanbanBoardPage(props){
     const Done_data = ["done 1","done 2","done 3","done 4","done 5"];
     const Close_data = ["close 1","close 2","close 3","close 4","close 5"];
 
+    //================ Create App Popup display ================
+    const [ActiveCreateApp, setActiveCreateApp] = useState(false)
+    const [HoverCreateApp, setHoverCreateApp] = useState(false)
+    const [isOpen_CreateApp, setIsOpen_CreateApp] = useState(false);
+    const togglePopup_CreateApp = () => {
+        setActiveCreateApp(!ActiveCreateApp);
+        setIsOpen_CreateApp(!isOpen_CreateApp);
+    }
+
+    //================ Edit App Popup display ================
+    const [ActiveEditApp, setActiveEditApp] = useState(false)
+    const [HoverEditApp, setHoverEditApp] = useState(false)
+    const [isOpen_EditApp, setIsOpen_EditApp] = useState(false);
+    const togglePopup_EditApp = () => {
+        setActiveEditApp(!ActiveEditApp);
+        setIsOpen_EditApp(!isOpen_EditApp);
+    }
+
+    //================ Create Plan Popup display ================
+    const [isOpen_CreatePlan, setIsOpen_CreatePlan] = useState(false);
+
+
+
     //================ Audit Trail button ================
     const [ActiveAuditTrail, setActiveAuditTrail] = useState()
     //================ Audit Trail Popup display ================
     const [selectedTaskData, setSelectedTaskData] = useState();
     const [isOpen_AuditTrail, setIsOpen_AuditTrail] = useState(false);
-    const togglePopup = () => {
+    const togglePopup_AuditTrail = () => {
         setActiveAuditTrail();
         setIsOpen_AuditTrail(!isOpen_AuditTrail);
     }
@@ -46,36 +70,74 @@ function KanbanBoardPage(props){
             {/*================ Title & buttons ================*/}
             <div className='col-6'> 
                 <h2><u>Apps</u></h2>
-                <p><button>Create App</button></p>
+                <p>
+                    <button 
+                        style={{
+                            border: "1.5px solid darkslategray"
+                            ,borderRadius: "3px"
+                            ,color:(ActiveCreateApp||HoverCreateApp?  "white" : "black")
+                            ,backgroundColor:(ActiveCreateApp||HoverCreateApp?  "lightslategray" : "lightgray")
+                        }}
+                        onClick={togglePopup_CreateApp}
+                        onMouseEnter={()=>{setHoverCreateApp(true)}}
+                        onMouseLeave={()=>{setHoverCreateApp(false)}}
+                    >
+                        Create App
+                    </button>
+                </p>
                 <p>
                     <b>Applications:&nbsp;</b>
                     {App_Acronym? ButtonsMap(App_Acronym, ActiveApp, setActiveApp):"-"}
                 </p>
             </div>
             
+            {/*================ Selected Kanban App ================*/}
             <div className='col-6' style={{border: '2px solid gray', padding: "2px"}}>
                 <div className='col-6' style={{borderBottom: '2px solid gray', padding: "2px"}}>
                     {/*================ App & Plan Header ================*/}
                     <div className='col-6' style={{marginBottom: "-15px"}}>
+                        {/*================ App Header ================*/}
                         <div className='col-9'>
-                            <h3>&nbsp;<u>App: {ActiveApp? ActiveApp:"-"}</u></h3>
+                            <div className='col-10'>
+                                <h3>&nbsp;<u>App: {ActiveApp? ActiveApp:"-"}</u></h3>
+                            </div>
+                            <div className='col-5'>
+                                <p>
+                                    <button 
+                                        style={{
+                                            border: "1.5px solid darkslategray"
+                                            ,borderRadius: "3px"
+                                            ,color:(ActiveEditApp||HoverEditApp?  "white" : "black")
+                                            ,backgroundColor:(ActiveEditApp||HoverEditApp?  "lightslategray" : "lightgray")
+                                        }}
+                                        onClick={togglePopup_EditApp}
+                                        onMouseEnter={()=>{setHoverEditApp(true)}}
+                                        onMouseLeave={()=>{setHoverEditApp(false)}}
+                                    >
+                                        Edit App
+                                    </button>
+                                </p>
+                            </div>
                         </div>
+                        {/*================ Plan Header ================*/}
                         <div className='col-9' style={{borderLeft:"2px solid gray", borderLeftStyle:"dotted"}}>
-                            <p style={{width:"275%"}}></p>
                             <h4>&nbsp;Plan: {Plan_Acronym? ButtonsMap(Plan_Acronym, ActivePlan, setActivePlan):"-"}</h4>
                         </div>
                     </div>
 
 
-                    <div className='col-6' style={{marginTop: "-15px"}}>
+                    <div className='col-6' style={{marginTop: "-7px"}}>
                         {/*================ App Info ================*/}
                         <div className='col-9' >
                             <div className='col-7'>
                                 <p style={{fontSize: "small"}}>&nbsp;Start date: {ActiveApp? ActiveApp:"-"}</p>
-                                <p style={{fontSize: "small"}}>&nbsp;End date: {ActiveApp? ActiveApp:"-"}</p>
                             </div>
 
                             <div className='col-8'>
+                                <p style={{fontSize: "small"}}>&nbsp;End date: {ActiveApp? ActiveApp:"-"}</p>
+                            </div>
+
+                            <div className='col-6'>
                                 <p style={{fontSize: "small"}}>&nbsp;Description: {ActiveApp? ActiveApp:"-"}</p>
                             </div>
                         </div>
@@ -84,8 +146,15 @@ function KanbanBoardPage(props){
                         <div className='col-9' style={{borderLeft:"2px solid gray", borderLeftStyle:"dotted"}}>
                             <div className='col-7'>
                                 <p style={{fontSize: "small"}}>&nbsp;Start date: {ActivePlan? ActivePlan:"-"}</p>
+                            </div>
+                            <div className='col-8'>
                                 <p style={{fontSize: "small"}}>&nbsp;End date: {ActivePlan? ActivePlan:"-"}</p>
-                                <button style={{marginInline: "5px", marginBottom: "5px"}}>Create Plan</button>
+                            </div>
+                            <div className='col-6'>
+                                {/* <button style={{marginInline: "5px", marginBottom: "10px",marginTop: "10px"}}>Create Plan</button> */}
+                            
+                                <ButtonTemplate name={"Create Plan"} isOpen={isOpen_CreatePlan} setIsOpen={setIsOpen_CreatePlan}/>
+                            
                             </div>
                         </div>
                     </div>
@@ -161,6 +230,38 @@ function KanbanBoardPage(props){
                     </div>
             </div>
 
+            {/* ================ Create App Popup display ================ */}
+            {isOpen_CreateApp && <Popup
+                content={<>
+                <b>App Creation</b>
+                <p><button onClick={()=>{console.log("test create app")}}>Save</button></p>
+                </>}
+                handleClose={togglePopup_CreateApp}
+            />}
+
+            {/* ================ Edit App Popup display ================ */}
+            {isOpen_EditApp && <Popup
+                content={<>
+                <b>Editing App</b>
+                <p><button onClick={()=>{console.log("test edit app", ActiveApp)}}>Save</button></p>
+                </>}
+                handleClose={togglePopup_EditApp}
+            />}
+
+            {/* ================ Create Plan Popup display ================ */}
+            {isOpen_CreatePlan && <Popup
+                content={<>
+                <b>Plan Creation</b>
+                <p><button onClick={()=>{console.log("test create plan")}}>Save</button></p>
+                </>}
+                handleClose={setIsOpen_CreatePlan(!isOpen_CreatePlan)}
+            />}
+
+
+
+
+
+
             {/* ================ Audit Trail Popup display ================ */}
             {isOpen_AuditTrail && <Popup
                 content={<>
@@ -168,7 +269,7 @@ function KanbanBoardPage(props){
                 <p>{selectedTaskData}</p>
                 <button onClick={()=>{console.log("test")}}>Test button</button>
                 </>}
-                handleClose={togglePopup}
+                handleClose={togglePopup_AuditTrail}
             />}
         </>
     )
