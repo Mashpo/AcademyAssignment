@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
 
+
 const ButtonTemplate = props => {
     const [Active, setActive] = useState(false)
     const [Hover, setHover] = useState(false)
+   
     const togglePopup = () => {
         props.setIsOpen(!props.isOpen);
     }
 
-    useEffect(()=>{
-        if (props.isOpen){
-        setActive(!Active);
-        }
-        else if (!props.isOpen){
-            setActive(!Active);
-        }
-    },[props.isOpen])
+    // useEffect(()=>{
+    //     if (props.isOpen && !Active){
+    //     setActive(!Active);
+    //     }
+    //     else if (!props.isOpen && Active){
+    //         setActive(!Active);
+    //     }
+    // },[props.isOpen])
     
 
     return(
@@ -22,8 +24,8 @@ const ButtonTemplate = props => {
             style={{
                 border: "1.5px solid darkslategray"
                 ,borderRadius: "3px"
-                ,color:(Active||Hover?  "white" : "black")
-                ,backgroundColor:(Active||Hover?  "lightslategray" : "lightgray")
+                ,color:(props.isOpen||Hover?  "white" : "black")
+                ,backgroundColor:(props.isOpen||Hover?  "lightslategray" : "lightgray")
             }}
             onClick={togglePopup}
             onMouseEnter={()=>{setHover(true)}}

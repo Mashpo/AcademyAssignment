@@ -299,6 +299,33 @@ module.exports.insertCreatedUser = (username, password, email, active_status, gr
         })  
 }
 
+module.exports.CreateKBApp = (AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, callback) => {
+
+    console.log(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done)
+    // Query
+    let query = mysql.format(
+        'INSERT INTO application(App_Acronym,App_Description,App_Rnumber,App_startDate,App_endDate,App_permit_Create,App_permit_Open,App_permit_toDoList,App_permit_Doing,App_permit_Done) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done]
+    )
+ 
+    // Querying
+    db.query(query, (err,result)=>{
+
+            if (err === null) {
+                return callback(null, true)
+            }
+
+            if (err.errno === 1062) {
+                return callback("duplicated", false)
+            }
+
+            if (err && !err.errno === 1062) {
+                callback(err.sqlMessage, false);
+            }
+            
+        })  
+}
+
 module.exports.getAllG = (callback) => {
 
     // Query

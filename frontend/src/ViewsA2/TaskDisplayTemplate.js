@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 
 
-function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData, ActiveAuditTrail, setActiveAuditTrail){
+function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+    , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask){
 
     //================ Task Display ================
     const [IsHover, setIsHover] = useState(false)
@@ -11,9 +12,18 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
     const [IsHover3, setIsHover3] = useState(false)
     const [IsHover4, setIsHover4] = useState()
 
+    //================ Edit Selected Task button ================
+    const [IsHover5, setIsHover5] = useState(false)
+    const [IsHover6, setIsHover6] = useState()
+
     //================ Audit Trail Popup display ================
-    const togglePopup = () => {
+    const togglePopup_AT = () => {
         setIsOpen_AuditTrail(!isOpen_AuditTrail);
+    }
+
+    //================ Edit Selected Task Popup display ================
+     const togglePopup_EST = () => {
+        setIsOpen_EditSelectedTask(!isOpen_EditSelectedTask);
     }
    
 
@@ -56,6 +66,31 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                         </p>
                     </span>
 
+                    {/*============ Edit Task Button ============*/}
+                    <button 
+                        style={{
+                            float:"right"
+                            ,marginInline: "5px"
+                            ,marginBottom: "10px"
+                            ,border: "1.5px solid darkslategray"
+                            ,borderRadius: "3px"
+                            ,color:((ActiveEditSelectedTask === data)||((IsHover5)&&(IsHover6 === data))?  "white" : "black")
+                            ,backgroundColor:((ActiveEditSelectedTask === data)||((IsHover5)&&(IsHover6 === data))?  "lightslategray" : "lightgray")
+                        }}
+                        
+                        onClick={()=>{
+                            setActiveEditSelectedTask(data)
+                            setSelectedTaskData_EST(data)
+                            //Audit trail stuff to display
+                            togglePopup_EST()
+                        }}
+
+                        onMouseEnter={()=>{setIsHover5(true); setIsHover6(data)}}
+                        onMouseLeave={()=>{setIsHover5(false); setIsHover6(data)}}
+                    >
+                        Edit Task
+                    </button>
+
                     {/*============ Audit Trail Button ============*/}
                     <button 
                         style={{
@@ -70,9 +105,9 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                         
                         onClick={()=>{
                             setActiveAuditTrail(data)
-                            setSelectedTaskData(data)
+                            setSelectedTaskData_AT(data)
                             //Audit trail stuff to display
-                            togglePopup()
+                            togglePopup_AT()
                         }}
 
                         onMouseEnter={()=>{setIsHover3(true); setIsHover4(data)}}

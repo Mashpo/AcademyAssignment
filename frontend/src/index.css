@@ -173,6 +173,8 @@ button:hover {
 .col-8 {width: 66.66%;}
 .col-9 {width: 50%;}
 .col-10 {width: 80%;}
+.col-11 {width: 16.66%;}
+
 
 /* sample pre-set % range */
 .col-1z {width: 8.33%;}
@@ -400,7 +402,7 @@ button:hover {
   width: 70%;
   margin: 0 auto;
   height: auto;
-  max-height: 70vh;
+  /* min-height: 70vh; */
   margin-top: calc(100vh - 85vh - 20px);
   background: #fff;
   border-radius: 4px;

@@ -32,4 +32,24 @@ async function insertCreatedUser (req, res) {
 
 }
 
-module.exports = {insertG, insertCreatedUser}
+async function CreateKBApp (req, res) {
+    //Unpack Data
+    let AppAcronym = req.body.AppAcronym
+    let AppDescription = req.body.AppDescription
+    let AppRNumber = req.body.AppRNumber
+    let AppStartDate = req.body.AppStartDate
+    let AppEndDate = req.body.AppEndDate
+    let AppPermit_Create = req.body.AppPermit_Create[0].group_name
+    let AppPermit_Open = req.body.AppPermit_Open[0].group_name
+    let AppPermit_toDoList = req.body.AppPermit_toDoList[0].group_name
+    let AppPermit_Doing = req.body.AppPermit_Doing[0].group_name
+    let AppPermit_Done = req.body.AppPermit_Done[0].group_name
+    
+
+    user.CreateKBApp(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+module.exports = {insertG, insertCreatedUser, CreateKBApp}

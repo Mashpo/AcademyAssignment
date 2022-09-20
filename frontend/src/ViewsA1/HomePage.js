@@ -8,18 +8,19 @@ function HomePage(props) {
     props.setDataHeader("Home")
   },[])
 
-  const [isOpen, setIsOpen] = useState(false);
-
-  const togglePopup = () => {
-    setIsOpen(!isOpen);
-  }
+  // ~~~~~ Popup Template ~~~~~
+  // const [isOpen, setIsOpen] = useState(false);
+  // const togglePopup = () => {
+  //   setIsOpen(!isOpen);
+  // }
 
 
   return(
     <>
       <h1>Welcome Home!</h1>
-
-      <input
+  
+      {/* ~~~~~ Popup Template ~~~~~ */}
+      {/* <input
       type="button"
       value="Click to Open Popup"
       onClick={togglePopup}
@@ -31,7 +32,7 @@ function HomePage(props) {
           <button>Test button</button>
         </>}
         handleClose={togglePopup}
-      />}
+      />} */}
 
 
 

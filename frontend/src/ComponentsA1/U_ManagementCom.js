@@ -109,13 +109,6 @@ function AllUser(props){
            
         let validity = 1
         
-        console.log(password)
-        console.log(email)
-        console.log(active_status)
-        console.log(group)
-        console.log(GroupInitial)
-        let test = false
-
         if(!password && !email && !active_status && group.toString()==GroupInitial.toString()){
             // seteditStatus("0")
             toast.warn("No changes were made", {hideProgressBar:true})

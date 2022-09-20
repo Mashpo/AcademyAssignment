@@ -46,5 +46,6 @@ router.post("/updateAllUsers", UpdateDataControl.updateAllUsers)
 //Insert to SQL
 router.post("/insertG", InsertData_Control.insertG)
 router.post("/insertCreatedUser", InsertData_Control.insertCreatedUser)
+router.post("/CreateKBApp", InsertData_Control.CreateKBApp)
 
 module.exports = router;
