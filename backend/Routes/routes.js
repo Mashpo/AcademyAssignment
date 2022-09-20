@@ -37,6 +37,7 @@ router.post("/logout", LogInOutControl.logoutUser
 router.post("/GetUserData", RetrieveDataContorl.GetUserData)
 router.post("/getAllExceptSelf", RetrieveDataContorl.getAllExceptSelf)
 router.post("/getAllG", RetrieveDataContorl.getAllG)
+router.post("/getAllKBApp", RetrieveDataContorl.getAllKBApp)
 
 //Update on SQL
 router.post("/updateOwnEmail", UpdateDataControl.updateOwnEmail)
@@ -47,5 +48,8 @@ router.post("/updateAllUsers", UpdateDataControl.updateAllUsers)
 router.post("/insertG", InsertData_Control.insertG)
 router.post("/insertCreatedUser", InsertData_Control.insertCreatedUser)
 router.post("/CreateKBApp", InsertData_Control.CreateKBApp)
+router.post("/CreateKBPlan", InsertData_Control.CreateKBPlan)
+router.post("/CreateKBTask", InsertData_Control.CreateKBTask)
+
 
 module.exports = router;

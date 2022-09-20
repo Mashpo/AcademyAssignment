@@ -17,18 +17,48 @@ import HandleSave from '../ComponentsA2/HandleSave';
 
 
 function KanbanBoardPage(props){
+
+    //================ Setting Header ================
     useEffect(()=>{
         props.setDataHeader("Kanban Board")
     },[])
+
+    //================ User Identity & Privileges ================
+    const token = JSON.parse(sessionStorage.getItem('token')).token
 
     //================ Title & buttons ================
     const [ActiveApp, setActiveApp] = useState()
     const [ActivePlan, setActivePlan] = useState()
 
-    
     //~~~~~~~~~~~~~~~~ Temp mySQL App data array ~~~~~~~~~~~~~~~~
+    const [All_KBAppData, setAll_KBAppData] = useState()
+    // const App_Acronym = All_KBAppData.App_Acronym;
     const App_Acronym = ["App 1","App 2","App 3","App 4","App 5"];
     
+    //~~~~~~~~~~~~~~~~ Retrieving All Application data from mySQL ~~~~~~~~~~~~~~~~
+    useEffect(()=>{
+        fetch('http://localhost:8080/getAllKBApp',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            }
+            })
+        // Server returns response from the credentials
+        .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        .then((res_json)=>{
+            setAll_KBAppData(res_json.KBAppData)
+            let acro_Array = []
+            res_json.KBAppData.map((row)=>{
+                acro_Array.push(row.App_Acronym)
+            })
+
+            console.log(acro_Array)
+        })
+    },[])
+    
+
+
     //~~~~~~~~~~~~~~~~ Temp mySQL Plan data array ~~~~~~~~~~~~~~~~
     const Plan_Acronym = ["Plan 1","Plan 2","Plan 3","Plan 4","Plan 5"];
 
@@ -42,13 +72,15 @@ function KanbanBoardPage(props){
 
     //~~~~~~~~~~~~~~~~ mySQL All Group data array ~~~~~~~~~~~~~~~~
     const [ResultAllG, setResultAllG] = useState(false)
-    //Retrieve All Groups from SQL
+        //Retrieving All Groups from SQL
     useEffect(()=>{
         G_ManagementCom.getAllG(setResultAllG)
     },[]);
     if(ResultAllG.errMsg){
     console.log(ResultAllG.errMsg)
     }
+
+    
     
     //================ Create App Popup display ================
     const [ActiveCreateApp, setActiveCreateApp] = useState(false)
@@ -81,6 +113,14 @@ function KanbanBoardPage(props){
     const togglePopup_CreatePlan = () => {
         setActiveCreatePlan(!ActiveCreatePlan);
         setIsOpen_CreatePlan(!isOpen_CreatePlan);
+
+        setPlanMVPName()
+        setPlanStartDate()
+        setPlanEndDate()
+    }
+    const NoAppSelected_CreatePlan = ()=>{
+        toast.warn("Please select an app first", {hideProgressBar:true})
+        togglePopup_CreatePlan()
     }
 
     //================ Edit Plan Popup display ================
@@ -99,11 +139,25 @@ function KanbanBoardPage(props){
     const togglePopup_CreateTask = () => {
         setActiveCreateTask(!ActiveCreateTask);
         setIsOpen_CreateTask(!isOpen_CreateTask);
+
+        setTaskName()
+        setTaskDescription()
+        setTaskNotes()
+        setTaskID()
+        setTaskPlan()
+        setTaskState()
+        setTaskCreator()
+        setTaskOwner()
+        setTaskCreateDate()
+    }
+    const NoAppSelected_CreateTask = ()=>{
+        toast.warn("Please select an app first", {hideProgressBar:true})
+        togglePopup_CreateTask()
     }
 
-     //================ Audit Trail button ================
+     //================ Editing Selected Task button ================
      const [ActiveEditSelectedTask, setActiveEditSelectedTask] = useState()
-     //================ Audit Trail Popup display ================
+     //================ Editing Selected Task Popup display ================
      const [selectedTaskData_EST, setSelectedTaskData_EST] = useState();
      const [isOpen_EditSelectedTask, setIsOpen_EditSelectedTask] = useState(false);
      const togglePopup_EditSelectedTask = () => {
@@ -139,7 +193,14 @@ function KanbanBoardPage(props){
     const [PlanStartDate, setPlanStartDate] = useState();
     const [PlanEndDate, setPlanEndDate] = useState();
     const [PlanAppAcronym, setPlanAppAcronym] = useState();
-  
+        //Temp mySQL data, replace ActiveApp with AppAcronym
+    useEffect(()=>{
+        setPlanAppAcronym(ActiveApp)
+    },[ActiveApp])
+        //Temp mySQL data, retrieve App Start & End and set it here
+    var SelectedAppStartDate = "2022-08-01"
+    var SelectedAppEndDate = "2022-10-31"
+
     //~~~~~~~~~~~~~~~~ Task Set State ~~~~~~~~~~~~~~~~
     const [TaskName, setTaskName] = useState();
     const [TaskDescription, setTaskDescription] = useState();
@@ -151,8 +212,30 @@ function KanbanBoardPage(props){
     const [TaskCreator, setTaskCreator] = useState();
     const [TaskOwner, setTaskOwner] = useState();
     const [TaskCreateDate, setTaskCreateDate] = useState();
+        //Temp mySQL data, replace ActiveApp with AppAcronym
+    useEffect(()=>{
+        setTaskAppAcronym(ActiveApp)
+    },[ActiveApp])
+    //Triggers when creating task/when task create display pops out
+    useEffect(()=>{
+            //Temp mySQL data, replace ActiveApp with AppAcronym _ RunningNumber
+        setTaskID(ActiveApp+"_"+ActiveApp)
+        
+        let tempDate = new Date()
+        setTaskNotes("[1] - Created by"+" "+token.username+" "+tempDate)
+        setTaskState("Open")
+        setTaskCreator(token.username)
+        setTaskOwner(token.username)
+        setTaskCreateDate(tempDate.toISOString().split('T')[0])
+    },[(isOpen_CreateTask && TaskAppAcronym)])
 
-  
+    //================ Mics Functions ================
+    function UnpackDateForInput(dateToUnpack){
+        return(
+            new Date(dateToUnpack).toLocaleDateString('pt-br').split( '/' ).reverse( ).join( '-' )
+        )
+    }
+    
     return(
         <>
             {/*================ Title & buttons ================*/}
@@ -388,24 +471,26 @@ function KanbanBoardPage(props){
                     <>
                         <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveCreateApp(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done
                             ,(update_status)=>{
-
                                 if(update_status.success){
                                     toast.success("Update Successful", {hideProgressBar:true})
+                                    togglePopup_CreateApp()
+                                }
+                                else if (update_status.errMsg == "duplicated"){
+                                    toast.error("App Name already exist", {hideProgressBar:true})
                                 }
                                 else{
                                     console.log(update_status.errMsg)
                                 }
-
-                                togglePopup_CreateApp()
                             }
                         )}}>
-                            {/*App Acronym*/}
+                            {/*Create App Input Field*/}
+                            <p><u><b>Creating App</b></u></p>
                             <div>*App: <input type="text" placeholder="Acronym" aria-describedby="basic-addon1" onChange={e => setAppAcronym(e.target.value)}/></div>
                             <br/>
                             <div>*Running No.: <input type="number" onChange={e => setAppRNumber(e.target.value)}/></div>
                             <br/>
-                            <div className='col-7'>*Start Date: <input type="date" id="startdate" name="startdate" onChange={e => setAppStartDate(e.target.value)}/></div>
-                            <div className='col-7'>*End Date: <input type="date" id="enddate" name="enddate" onChange={e => setAppEndDate(e.target.value)}/></div>
+                            <div className='col-7'>*Start Date: <input type="date" id="startdate" name="startdate" max={UnpackDateForInput(AppEndDate)} onChange={e => setAppStartDate(e.target.value)}/></div>
+                            <div className='col-7'>*End Date: <input type="date" id="enddate" name="enddate" min={UnpackDateForInput(AppStartDate)} onChange={e => setAppEndDate(e.target.value)}/></div>
                             <br/>
                             <div className='col-6'>
                                 <div className='col-11' style={{marginTop:"15px"}}>*Open:</div>
@@ -502,10 +587,11 @@ function KanbanBoardPage(props){
                                 </div>
                             </div>
                             <textarea style={{ resize: 'none', overflow:'auto', marginTop:"15px"}} id='description' rows="4" cols="100" className="form-control" placeholder="Description (Optional)" onChange={e => setAppDescription(e.target.value)}/>
-                            <p style={{fontSize:"small"}}>* compulsory fields</p>
-
-                            {/*Buttons*/}
-                            <p><button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button></p>
+                            <p style={{fontSize:"small"}}>
+                                * compulsory fields
+                                {/*Buttons*/}
+                                <button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button>
+                            </p>
                         </form>
                     </>
                 }
@@ -530,33 +616,38 @@ function KanbanBoardPage(props){
                 </>}
                 handleClose={  <ButtonTemplate.togglePopup  isOpen={isOpen_CreatePlan} setIsOpen={setIsOpen_CreatePlan}/>}
             />} */}
-
-            {isOpen_CreatePlan && <Popup
+            
+            {isOpen_CreatePlan && !PlanAppAcronym && (
+                NoAppSelected_CreatePlan()
+            )}
+            {isOpen_CreatePlan && PlanAppAcronym && <Popup
                 content={<>
-                    <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveCreatePlan(
+                    <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveCreatePlan(PlanMVPName,PlanStartDate,PlanEndDate,PlanAppAcronym
                         ,(update_status)=>{
-
                             if(update_status.success){
                                 toast.success("Update Successful", {hideProgressBar:true})
+                                togglePopup_CreatePlan()
+                            }
+                            else if (update_status.errMsg == "duplicated"){
+                                toast.error("Plan MVP Name already exist", {hideProgressBar:true})
                             }
                             else{
                                 console.log(update_status.errMsg)
                             }
-
-                            togglePopup_CreateApp()
                         }
                     )}}>
-                        {/*App Acronym*/}
-                        <div>*App: <input type="text" placeholder="Acronym" aria-describedby="basic-addon1" onChange={e => setAppAcronym(e.target.value)}/></div>
+                        {/*Create Plan Input Field*/}
+                        <p><u><b>Creating Plan for <mark style={{backgroundColor:"lightblue"}}>{ActiveApp}</mark></b></u></p>
+                        <div>*Plan: <input type="text" placeholder="Plan MVP Name" aria-describedby="basic-addon1" onChange={e => setPlanMVPName(e.target.value)}/></div>
                         <br/>
-                        <div>*Running No.: <input type="number" onChange={e => setAppRNumber(e.target.value)}/></div>
-                        <br/>
-                        <div className='col-7'>*Start Date: <input type="date" id="startdate" name="startdate" onChange={e => setAppStartDate(e.target.value)}/></div>
-                        <div className='col-7'>*End Date: <input type="date" id="enddate" name="enddate" onChange={e => setAppEndDate(e.target.value)}/></div>
-                        <p style={{fontSize:"small"}}>* compulsory fields</p>
-
-                        {/*Buttons*/}
-                        <p><button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button></p>
+                        <div className='col-7'>*Start Date: <input type="date" id="startdate" name="startdate" min={UnpackDateForInput(SelectedAppStartDate)} max={(PlanEndDate<SelectedAppEndDate)&&PlanEndDate?  UnpackDateForInput(PlanEndDate):UnpackDateForInput(SelectedAppEndDate)} onChange={e => setPlanStartDate(e.target.value)}/></div>
+                        <div className='col-7'>*End Date: <input type="date" id="enddate" name="enddate" min={(SelectedAppStartDate<PlanStartDate)&&PlanStartDate? UnpackDateForInput(PlanStartDate):UnpackDateForInput(SelectedAppStartDate)} max={UnpackDateForInput(SelectedAppEndDate)} onChange={e => setPlanEndDate(e.target.value)}/></div>
+                        <br/><br/>
+                        <p style={{fontSize:"small"}}>
+                            * compulsory fields
+                            {/*Buttons*/}
+                            <button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button>
+                        </p>
                     </form>              
                 </>}
                 handleClose={togglePopup_CreatePlan}
@@ -572,15 +663,63 @@ function KanbanBoardPage(props){
             />}
 
             {/* ================ Create Task Popup display ================ */}
-            {isOpen_CreateTask && <Popup
+            {isOpen_CreateTask && !TaskAppAcronym && (
+                NoAppSelected_CreateTask()
+            )}
+            {isOpen_CreateTask && TaskAppAcronym && <Popup
                 content={<>
-                <b>Task Creation</b>
-                <p><button onClick={()=>{console.log("test Create Task")}}>Save</button></p>
-                </>}
+                    <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveCreateTask(TaskName,TaskDescription,TaskNotes,TaskID, TaskPlan, TaskAppAcronym, TaskState, TaskCreator, TaskOwner, TaskCreateDate 
+                            ,(update_status)=>{
+                                if(update_status.success){
+                                    toast.success("Update Successful", {hideProgressBar:true})
+                                    togglePopup_CreateTask()
+                                }
+                                else if (update_status.errMsg == "duplicated"){
+                                    toast.error("Task Name already exist", {hideProgressBar:true})
+                                }
+                                else{
+                                    console.log(update_status.errMsg)
+                                }
+                            }
+                        )}}>
+                            {/*Create Task Input Fields*/}
+                            <p><u><b>Creating Task for <mark style={{backgroundColor:"lightblue"}}>{ActiveApp}</mark></b></u></p>
+                            <div>*Task: <input type="text" placeholder="Task Name" aria-describedby="basic-addon1" onChange={e => setTaskName(e.target.value)}/></div>
+                            <br/>
+                            <div className='col-6' style={{marginTop:"1px"}}>
+                                <div className='col-12' style={{marginTop:"5px"}}>Plan: </div>
+                                <div className='col-11'>
+                                    {/* change group_name & ResultAllG to plan array from mySQL */}
+                                    <Multiselect
+                                        placeholder="Select Plan"
+                                        hidePlaceholder='true'
+                                        displayValue="group_name" 
+                                        onRemove={(selection) => {
+                                            setTaskPlan(selection)
+                                        }}
+                                        onSelect={(selection) => {
+                                            setTaskPlan(selection)
+                                        }}
+                                        options={ResultAllG.GroupData.filter(item => item.group_name !== 'admin')}
+                                        selectedValues={TaskPlan}
+                                        showCheckbox
+                                        selectionLimit={1}
+                                    />
+                                </div>
+                            </div>
+                            <textarea style={{ resize: 'none', overflow:'auto', marginTop:"15px"}} id='description' rows="4" cols="100" className="form-control" placeholder="Description (Optional)" onChange={e => setTaskDescription(e.target.value)}/>
+                            <br/><br/>
+                            <p style={{fontSize:"small"}}>
+                                * compulsory fields
+                                {/*Buttons*/}
+                                <button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button>
+                            </p>
+                        </form>              
+                    </>}
                 handleClose={togglePopup_CreateTask}
             />}
 
-            {/* ================ Audit Trail Popup display ================ */}
+            {/* ================ Editing Selected Task Popup display ================ */}
             {isOpen_EditSelectedTask && <Popup
                 content={<>
                 <b>Editing Task: {selectedTaskData_EST}</b>

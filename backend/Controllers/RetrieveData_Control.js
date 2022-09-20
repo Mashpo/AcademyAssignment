@@ -31,4 +31,12 @@ function getAllG (req, res) {
 
 }
 
-module.exports = {GetUserData, getAllExceptSelf, getAllG}
+function getAllKBApp (req, res) {
+
+    user.getAllKBApp((err, results)=>{
+        res.send({errMsg: err, KBAppData: results})
+    })
+
+}
+
+module.exports = {GetUserData, getAllExceptSelf, getAllG, getAllKBApp}

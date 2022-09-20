@@ -301,7 +301,6 @@ module.exports.insertCreatedUser = (username, password, email, active_status, gr
 
 module.exports.CreateKBApp = (AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, callback) => {
 
-    console.log(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done)
     // Query
     let query = mysql.format(
         'INSERT INTO application(App_Acronym,App_Description,App_Rnumber,App_startDate,App_endDate,App_permit_Create,App_permit_Open,App_permit_toDoList,App_permit_Doing,App_permit_Done) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -326,11 +325,80 @@ module.exports.CreateKBApp = (AppAcronym,AppDescription,AppRNumber,AppStartDate,
         })  
 }
 
+module.exports.CreateKBPlan = (PlanMVPName,PlanStartDate,PlanEndDate,PlanAppAcronym, callback) => {
+
+    // Query
+    let query = mysql.format(
+        'INSERT INTO plan(Plan_MVP_name,Plan_startDate,Plan_endDate,Plan_app_Acronym) VALUES (?, ?, ?, ?)',
+        [PlanMVPName,PlanStartDate,PlanEndDate,PlanAppAcronym]
+    )
+ 
+    // Querying
+    db.query(query, (err,result)=>{
+
+            if (err === null) {
+                return callback(null, true)
+            }
+
+            if (err.errno === 1062) {
+                return callback("duplicated", false)
+            }
+
+            if (err && !err.errno === 1062) {
+                callback(err.sqlMessage, false);
+            }
+            
+        })  
+}
+
+module.exports.CreateKBTask = (TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate, callback) => {
+
+    // Query
+    let query = mysql.format(
+        'INSERT INTO task(Task_name,Task_description,Task_notes,Task_id,Task_plan,Task_app_Acronym,Task_state,Task_creator,Task_owner,Task_createDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate]
+    )
+
+    // Querying
+    db.query(query, (err,result)=>{
+
+            if (err === null) {
+                return callback(null, true)
+            }
+
+            if (err.errno === 1062) {
+                return callback("duplicated", false)
+            }
+
+            if (err && !err.errno === 1062) {
+                callback(err.sqlMessage, false);
+            }
+            
+        })  
+}
+
 module.exports.getAllG = (callback) => {
 
     // Query
     let query = mysql.format(
         `SELECT group_name FROM user_group`
+    )
+ 
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
+module.exports.getAllKBApp = (callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT App_Acronym,App_Description,App_Rnumber,App_startDate,App_endDate,App_permit_Create,App_permit_Open,App_permit_toDoList,App_permit_Doing,App_permit_Done FROM application`
     )
  
     // Querying

@@ -5,12 +5,9 @@ import 'react-toastify/dist/ReactToastify.css';
 
 async function SaveCreateApp(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, callback){
 
-    console.log(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done)
-
     let validity = 1
 
     if(!AppAcronym || !AppRNumber || !AppStartDate || !AppEndDate || !AppPermit_Create || !AppPermit_Open || !AppPermit_toDoList || !AppPermit_Doing || !AppPermit_Done){
-        // seteditStatus("0")
         toast.warn("Empty Compulsory Fields", {hideProgressBar:true})
         validity = 0
     }
@@ -35,28 +32,25 @@ async function SaveCreateApp(AppAcronym,AppDescription,AppRNumber,AppStartDate,A
     }
 }
 
-async function SaveCreatePlan(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done,setAppPermit_Create,setAppPermit_Open,setAppPermit_toDoList,setAppPermit_Doing,setAppPermit_Done, callback){
-
-    console.log(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done)
+async function SaveCreatePlan(PlanMVPName,PlanStartDate,PlanEndDate,PlanAppAcronym, callback){
 
     let validity = 1
 
-    if(!AppAcronym || !AppRNumber || !AppStartDate || !AppEndDate || !AppPermit_Create || !AppPermit_Open || !AppPermit_toDoList || !AppPermit_Doing || !AppPermit_Done){
-        // seteditStatus("0")
+    if(!PlanMVPName || !PlanStartDate || !PlanEndDate || !PlanAppAcronym){
         toast.warn("Empty Compulsory Fields", {hideProgressBar:true})
         validity = 0
     }
-    
+
     if (validity === 1){
 
-       await fetch('http://localhost:8080/CreateKBApp',{
+       await fetch('http://localhost:8080/CreateKBPlan',{
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
             },
             // POST content
-            body: JSON.stringify({AppAcronym:AppAcronym,AppDescription:AppDescription,AppRNumber:AppRNumber,AppStartDate:AppStartDate,AppEndDate:AppEndDate,AppPermit_Create:AppPermit_Create,AppPermit_Open:AppPermit_Open,AppPermit_toDoList:AppPermit_toDoList,AppPermit_Doing:AppPermit_Doing,AppPermit_Done:AppPermit_Done})
+            body: JSON.stringify({PlanMVPName:PlanMVPName,PlanStartDate:PlanStartDate,PlanEndDate:PlanEndDate,PlanAppAcronym:PlanAppAcronym})
         })
         // Server returns response from the credentials
             //.send sends the object as a string so after recieving the data, .json makes it back into an object
@@ -67,6 +61,35 @@ async function SaveCreatePlan(AppAcronym,AppDescription,AppRNumber,AppStartDate,
     }
 }
 
+async function SaveCreateTask(TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate,callback){
 
+    console.log(TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate)
 
-export default {SaveCreateApp, SaveCreatePlan};
+    let validity = 1
+
+    if(!TaskName || !TaskNotes || !TaskID || !TaskAppAcronym || !TaskState || !TaskCreator || !TaskOwner || !TaskCreateDate ){
+        toast.warn("Empty Compulsory Fields", {hideProgressBar:true})
+        validity = 0
+    }
+
+    if (validity === 1){
+
+       await fetch('http://localhost:8080/CreateKBTask',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            },
+            // POST content
+            body: JSON.stringify({TaskName:TaskName,TaskDescription:TaskDescription,TaskNotes:TaskNotes,TaskID:TaskID,TaskPlan:TaskPlan,TaskAppAcronym:TaskAppAcronym,TaskState:TaskState,TaskCreator:TaskCreator,TaskOwner:TaskOwner,TaskCreateDate:TaskCreateDate})
+        })
+        // Server returns response from the credentials
+            //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        .then(async (res) => { 
+            const update_status = await res.json()
+            callback(update_status)
+        }) 
+    }
+}
+
+export default {SaveCreateApp, SaveCreatePlan, SaveCreateTask};

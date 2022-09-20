@@ -32,7 +32,7 @@ async function insertCreatedUser (req, res) {
 
 }
 
-async function CreateKBApp (req, res) {
+function CreateKBApp (req, res) {
     //Unpack Data
     let AppAcronym = req.body.AppAcronym
     let AppDescription = req.body.AppDescription
@@ -45,11 +45,50 @@ async function CreateKBApp (req, res) {
     let AppPermit_Doing = req.body.AppPermit_Doing[0].group_name
     let AppPermit_Done = req.body.AppPermit_Done[0].group_name
     
-
     user.CreateKBApp(AppAcronym,AppDescription,AppRNumber,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, (err, results)=>{
         res.send({errMsg:err, success: results})
     })
 
 }
 
-module.exports = {insertG, insertCreatedUser, CreateKBApp}
+function CreateKBPlan (req, res) {
+    //Unpack Data
+    let PlanMVPName = req.body.PlanMVPName
+    let PlanStartDate = req.body.PlanStartDate
+    let PlanEndDate = req.body.PlanEndDate
+    let PlanAppAcronym = req.body.PlanAppAcronym
+    
+    user.CreateKBPlan(PlanMVPName,PlanStartDate,PlanEndDate,PlanAppAcronym, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+function CreateKBTask (req, res) {
+    //Unpack Data
+    let TaskName = req.body.TaskName
+    let TaskDescription = req.body.TaskDescription
+    let TaskNotes = req.body.TaskNotes
+    let TaskID = req.body.TaskID
+
+    let TaskPlan = "temp"
+    if(req.body.TaskPlan){
+        TaskPlan = req.body.TaskPlan[0].group_name
+    }
+    else if(!req.body.TaskPlan){
+        TaskPlan = req.body.TaskPlan
+    }
+
+    let TaskAppAcronym = req.body.TaskAppAcronym
+    let TaskState = req.body.TaskState
+    let TaskCreator = req.body.TaskCreator
+    let TaskOwner = req.body.TaskOwner
+    let TaskCreateDate = req.body.TaskCreateDate
+
+    user.CreateKBTask(TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+module.exports = {insertG, insertCreatedUser, CreateKBApp, CreateKBPlan, CreateKBTask}
