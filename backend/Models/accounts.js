@@ -427,3 +427,20 @@ module.exports.getAllKBPlan = (callback) => {
         }
     })
 }
+
+module.exports.getAllKBTask = (callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate FROM task`
+    )
+ 
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}

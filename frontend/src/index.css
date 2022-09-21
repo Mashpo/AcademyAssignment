@@ -175,6 +175,9 @@ button:hover {
 .col-10 {width: 80%;}
 .col-11 {width: 16.66%;}
 .col-12 {width: 42px;}
+.col-5h {width: 20%; height: 100%;}
+.col-5ha {width: 20%; height: 100%; position: absolute;}
+.col-6h {width: 100%; min-height:500px; position: relative; overflow: hidden;}
 
 
 /* sample pre-set % range */

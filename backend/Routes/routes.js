@@ -39,6 +39,7 @@ router.post("/getAllExceptSelf", RetrieveDataContorl.getAllExceptSelf)
 router.post("/getAllG", RetrieveDataContorl.getAllG)
 router.post("/getAllKBApp", RetrieveDataContorl.getAllKBApp)
 router.post("/getAllKBPlan", RetrieveDataContorl.getAllKBPlan)
+router.post("/getAllKBTask", RetrieveDataContorl.getAllKBTask)
 
 //Update on SQL
 router.post("/updateOwnEmail", UpdateDataControl.updateOwnEmail)

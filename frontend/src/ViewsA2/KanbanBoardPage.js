@@ -121,12 +121,52 @@ function KanbanBoardPage(props){
 
     //~~~~~~~~~~~~~~~~ Temp mySQL Task data array ~~~~~~~~~~~~~~~~
     //(data for each column is determine by task_state)
-    const Open_data = ["open 1","open 2","open 3","open 4","open 5"];
-    const ToDo_data = ["todo 1","todo 2","todo 3","todo 4","todo 5"];
-    const Doing_data = ["doing 1","doing 2","doing 3","doing 4","doing 5"];
-    const Done_data = ["done 1","done 2","done 3","done 4","done 5"];
-    const Close_data = ["close 1","close 2","close 3","close 4","close 5"];
+    // const Open_data = ["open 1","open 2","open 3","open 4","open 5"];
+    // const ToDo_data = ["todo 1","todo 2","todo 3","todo 4","todo 5"];
+    // const Doing_data = ["doing 1","doing 2","doing 3","doing 4","doing 5"];
+    // const Done_data = ["done 1","done 2","done 3","done 4","done 5"];
+    // const Close_data = ["close 1","close 2","close 3","close 4","close 5"];
 
+    const [All_KBTaskData, setAll_KBTaskData] = useState([])
+    // const [Task_Acronym, setTask_Acronym] = useState([])
+    const [ActiveAppAllTaskData, setActiveAppAllTaskData] = useState([])
+    const [Open_data, setOpen_data] = useState([])
+    const [ToDo_data, setToDo_data] = useState([])
+    const [Doing_data, setDoing_data] = useState([])
+    const [Done_data, setDone_data] = useState([])
+    const [Close_data, setClose_data] = useState([])
+
+    //~~~~~~~~~~~~~~~~ Retrieving All Task data from mySQL ~~~~~~~~~~~~~~~~
+    useEffect(()=>{
+        fetch('http://localhost:8080/getAllKBTask',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            }
+            })
+        // Server returns response from the credentials
+        .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        .then((res_json)=>{
+            setAll_KBTaskData(res_json.KBTaskData)
+        })
+    },[])
+
+    useEffect(()=>{
+        setActiveAppAllTaskData(selectArrayRow(All_KBTaskData, 'Task_app_Acronym', ActiveApp))
+    },[All_KBTaskData, ActiveApp])
+
+    useEffect(()=>{
+        setOpen_data(selectArrayRow(ActiveAppAllTaskData, 'Task_state', "Open"))
+        setToDo_data(selectArrayRow(ActiveAppAllTaskData, 'Task_state', "ToDo"))
+        setDoing_data(selectArrayRow(ActiveAppAllTaskData, 'Task_state', "Doing"))
+        setDone_data(selectArrayRow(ActiveAppAllTaskData, 'Task_state', "Done"))
+        setClose_data(selectArrayRow(ActiveAppAllTaskData, 'Task_state', "Close"))
+    },[ActiveAppAllTaskData])
+
+    // if(Open_data!=undefined){
+    // console.log(JSON.parse(Open_data[0]))
+    // }
     //~~~~~~~~~~~~~~~~ mySQL All Group data array ~~~~~~~~~~~~~~~~
     const [ResultAllG, setResultAllG] = useState(false)
         //Retrieving All Groups from SQL
@@ -429,89 +469,91 @@ function KanbanBoardPage(props){
 
 
                 {/*================ Task Activities ================*/}
-                    {/*~~~~~~~~~~ Open ~~~~~~~~~~*/}
-                    <div className='col-5' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
-                        <h3>
-                            Open
-                            {ActiveApp && (<button 
-                                style={{
-                                    float:"right"
-                                    ,marginInline: "5px"
-                                    ,marginBottom: "5px"
-                                    ,border: "1.5px solid darkslategray"
-                                    ,borderRadius: "3px"
-                                    ,color:(ActiveCreateTask||HoverCreateTask?  "white" : "black")
-                                    ,backgroundColor:(ActiveCreateTask||HoverCreateTask?  "lightslategray" : "lightgray")
-                                }}
-                                onClick={togglePopup_CreateTask}
-                                onMouseEnter={()=>{setHoverCreateTask(true)}}
-                                onMouseLeave={()=>{setHoverCreateTask(false)}}
-                            >
-                                Create Task
-                            </button>)}
+                    <div className='col-6h'>
+                        {/*~~~~~~~~~~ Open ~~~~~~~~~~*/}
+                        <div className='col-5h' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                            <h3>
+                                Open
+                                {ActiveApp && (<button 
+                                    style={{
+                                        float:"right"
+                                        ,marginInline: "5px"
+                                        ,marginBottom: "5px"
+                                        ,border: "1.5px solid darkslategray"
+                                        ,borderRadius: "3px"
+                                        ,color:(ActiveCreateTask||HoverCreateTask?  "white" : "black")
+                                        ,backgroundColor:(ActiveCreateTask||HoverCreateTask?  "lightslategray" : "lightgray")
+                                    }}
+                                    onClick={togglePopup_CreateTask}
+                                    onMouseEnter={()=>{setHoverCreateTask(true)}}
+                                    onMouseLeave={()=>{setHoverCreateTask(false)}}
+                                >
+                                    Create Task
+                                </button>)}
 
-                            <p style={{fontSize: "small"}}>
-                                permit: {ActiveAppData? ActiveAppData.App_permit_Open:"-"}
-                            </p>
-                        </h3>
+                                <p style={{fontSize: "small"}}>
+                                    permit: {ActiveAppData? ActiveAppData.App_permit_Open:"-"}
+                                </p>
+                            </h3>
+                            
+                            {Open_data? TaskDisplayTemplate(Open_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                        </div>
                         
-                        {Open_data? TaskDisplayTemplate(Open_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                            , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
-                    </div>
-                    
-                    {/*~~~~~~~~~~ To Do ~~~~~~~~~~*/}
-                    <div className='col-5' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
-                        <h3>
-                            To Do
-                            <p style={{fontSize: "small"}}>
-                                permit: {ActiveAppData? ActiveAppData.App_permit_toDoList:"-"}
-                            </p>
-                        </h3>
+                        {/*~~~~~~~~~~ To Do ~~~~~~~~~~*/}
+                        <div className='col-5ha' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                            <h3>
+                                To Do
+                                <p style={{fontSize: "small"}}>
+                                    permit: {ActiveAppData? ActiveAppData.App_permit_toDoList:"-"}
+                                </p>
+                            </h3>
+                            
+                            {ToDo_data? TaskDisplayTemplate(ToDo_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                        </div>
                         
-                        {ToDo_data? TaskDisplayTemplate(ToDo_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                            , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
-                    </div>
-                    
-                    {/*~~~~~~~~~~ Doing~~~~~~~~~~*/}
-                    <div className='col-5' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
-                        <h3>
-                            Doing
-                            <p 
-                                style={{fontSize: "small"}}>
-                                permit: {ActiveAppData? ActiveAppData.App_permit_Doing:"-"}
-                            </p>
-                        </h3>
+                        {/*~~~~~~~~~~ Doing~~~~~~~~~~*/}
+                        <div className='col-5ha' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                            <h3>
+                                Doing
+                                <p 
+                                    style={{fontSize: "small"}}>
+                                    permit: {ActiveAppData? ActiveAppData.App_permit_Doing:"-"}
+                                </p>
+                            </h3>
 
-                        {Doing_data? TaskDisplayTemplate(Doing_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                            , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
-                    </div>
-                    
-                    {/*~~~~~~~~~~ Done ~~~~~~~~~~*/}
-                    <div className='col-5' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
-                        <h3>
-                            Done
-                            <p 
-                                style={{fontSize: "small"}}>
-                                permit: {ActiveAppData? ActiveAppData.App_permit_Done:"-"}
-                            </p>
-                        </h3>
+                            {Doing_data? TaskDisplayTemplate(Doing_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                        </div>
+                        
+                        {/*~~~~~~~~~~ Done ~~~~~~~~~~*/}
+                        <div className='col-5ha' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                            <h3>
+                                Done
+                                <p 
+                                    style={{fontSize: "small"}}>
+                                    permit: {ActiveAppData? ActiveAppData.App_permit_Done:"-"}
+                                </p>
+                            </h3>
 
-                        {Done_data? TaskDisplayTemplate(Done_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                            , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
-                    </div>
+                            {Done_data? TaskDisplayTemplate(Done_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                        </div>
 
-                    {/*~~~~~~~~~~ Close ~~~~~~~~~~*/}
-                    <div className='col-5' style={{padding: "2px", minHeight:"500px"}}> 
-                        <h3>
-                            Close
-                            <p 
-                                style={{fontSize: "small"}}>
-                                &nbsp;
-                            </p>
-                        </h3>
+                        {/*~~~~~~~~~~ Close ~~~~~~~~~~*/}
+                        <div className='col-5ha' style={{padding: "2px", minHeight:"500px"}}> 
+                            <h3>
+                                Close
+                                <p 
+                                    style={{fontSize: "small"}}>
+                                    &nbsp;
+                                </p>
+                            </h3>
 
-                        {Close_data? TaskDisplayTemplate(Close_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                            , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                            {Close_data? TaskDisplayTemplate(Close_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                        </div>
                     </div>
             </div>
 

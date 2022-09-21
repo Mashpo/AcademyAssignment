@@ -47,4 +47,11 @@ function getAllKBPlan (req, res) {
 
 }
 
-module.exports = {GetUserData, getAllExceptSelf, getAllG, getAllKBApp, getAllKBPlan}
+function getAllKBTask (req, res) {
+
+    user.getAllKBTask((err, results)=>{
+        res.send({errMsg: err, KBTaskData: results})
+    })
+
+}
+module.exports = {GetUserData, getAllExceptSelf, getAllG, getAllKBApp, getAllKBPlan, getAllKBTask}
