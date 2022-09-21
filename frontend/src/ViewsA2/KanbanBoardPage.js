@@ -26,14 +26,34 @@ function KanbanBoardPage(props){
     //================ User Identity & Privileges ================
     const token = JSON.parse(sessionStorage.getItem('token')).token
 
+    //================ Mics Functions ================
+    function UnpackDateForInput(dateToUnpack){
+        return(
+            new Date(dateToUnpack).toLocaleDateString('pt-br').split( '/' ).reverse( ).join( '-' )
+        )
+    }
+
+    const selectArrayColumn = (FullArray, selectedColumn)=>{
+        let selectedColumnArray = []
+        FullArray.map((row)=>{
+            selectedColumnArray.push(row[selectedColumn])
+        })
+        return selectedColumnArray
+    }
+
+    const selectArrayRow = (FullArray, selectedRow)=>{
+        FullArray.filter((row)=>{
+            return selectedColumnArray.push(row[selectedColumn])
+        })
+    }
+
     //================ Title & buttons ================
     const [ActiveApp, setActiveApp] = useState()
     const [ActivePlan, setActivePlan] = useState()
 
     //~~~~~~~~~~~~~~~~ Temp mySQL App data array ~~~~~~~~~~~~~~~~
-    const [All_KBAppData, setAll_KBAppData] = useState()
-    // const App_Acronym = All_KBAppData.App_Acronym;
-    const App_Acronym = ["App 1","App 2","App 3","App 4","App 5"];
+    const [All_KBAppData, setAll_KBAppData] = useState([])
+    const [App_Acronym, setApp_Acronym] = useState([])
     
     //~~~~~~~~~~~~~~~~ Retrieving All Application data from mySQL ~~~~~~~~~~~~~~~~
     useEffect(()=>{
@@ -48,17 +68,13 @@ function KanbanBoardPage(props){
         .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
         .then((res_json)=>{
             setAll_KBAppData(res_json.KBAppData)
-            let acro_Array = []
-            res_json.KBAppData.map((row)=>{
-                acro_Array.push(row.App_Acronym)
-            })
-
-            console.log(acro_Array)
         })
     },[])
+
+    useEffect(()=>{
+        setApp_Acronym(selectArrayColumn(All_KBAppData, 'App_Acronym'))
+    },[All_KBAppData])
     
-
-
     //~~~~~~~~~~~~~~~~ Temp mySQL Plan data array ~~~~~~~~~~~~~~~~
     const Plan_Acronym = ["Plan 1","Plan 2","Plan 3","Plan 4","Plan 5"];
 
@@ -229,13 +245,7 @@ function KanbanBoardPage(props){
         setTaskCreateDate(tempDate.toISOString().split('T')[0])
     },[(isOpen_CreateTask && TaskAppAcronym)])
 
-    //================ Mics Functions ================
-    function UnpackDateForInput(dateToUnpack){
-        return(
-            new Date(dateToUnpack).toLocaleDateString('pt-br').split( '/' ).reverse( ).join( '-' )
-        )
-    }
-    
+
     return(
         <>
             {/*================ Title & buttons ================*/}
