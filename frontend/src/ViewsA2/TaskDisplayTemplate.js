@@ -51,8 +51,12 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                     <p style={{fontSize: "small"}}>
                         Description: {data}
                         <br/>
-                        Notes: {data}
-                        <br/>
+                        <textarea 
+                            rows="3" 
+                            style={{width:'96%', resize:'none', marginTop:"5px", marginLeft:"5px", padding:"10px"}} 
+                            disabled 
+                            defaultValue={data? data:"-"}
+                        />
                     </p>
 
                     {/*============ task hover over info ============*/}

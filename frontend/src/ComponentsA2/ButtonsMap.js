@@ -7,7 +7,10 @@ function ButtonsMap (Acronym, Active, setActive){
 
     return(
         <>
-            {Acronym.map((Acronym)=> 
+            {(Acronym.length===0) && (
+                <b> &nbsp; - </b>  
+            )}
+            {(Acronym.length>0) && (Acronym.map((Acronym)=> 
                 <button 
                     key={Acronym} 
                     style={{
@@ -28,7 +31,7 @@ function ButtonsMap (Acronym, Active, setActive){
                 >
                     {Acronym}
                 </button>
-            )}
+            ))}
         </>
     )
 }

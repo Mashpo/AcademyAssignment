@@ -41,19 +41,28 @@ function KanbanBoardPage(props){
         return selectedColumnArray
     }
 
-    const selectArrayRow = (FullArray, selectedRow)=>{
-        FullArray.filter((row)=>{
-            return selectedColumnArray.push(row[selectedColumn])
+    const selectArrayRow = (FullArray, selectedRow, selectedValue)=>{
+        const filtered = FullArray.filter((row)=>{
+            return row[selectedRow] === selectedValue
         })
+        return filtered
+    }
+
+    function FormatDate(date) { /* e.g. 20 Sept 2022*/
+        let f_date = new Date(date)
+        return f_date.toLocaleDateString("en-GB", {day: 'numeric', month: 'short' /*or long*/, year: 'numeric'})
     }
 
     //================ Title & buttons ================
     const [ActiveApp, setActiveApp] = useState()
     const [ActivePlan, setActivePlan] = useState()
 
-    //~~~~~~~~~~~~~~~~ Temp mySQL App data array ~~~~~~~~~~~~~~~~
+
+
+    //~~~~~~~~~~~~~~~~ mySQL App data array ~~~~~~~~~~~~~~~~
     const [All_KBAppData, setAll_KBAppData] = useState([])
     const [App_Acronym, setApp_Acronym] = useState([])
+    const [ActiveAppData, setActiveAppData] = useState([])
     
     //~~~~~~~~~~~~~~~~ Retrieving All Application data from mySQL ~~~~~~~~~~~~~~~~
     useEffect(()=>{
@@ -74,9 +83,41 @@ function KanbanBoardPage(props){
     useEffect(()=>{
         setApp_Acronym(selectArrayColumn(All_KBAppData, 'App_Acronym'))
     },[All_KBAppData])
+
+    useEffect(()=>{
+        setActiveAppData(selectArrayRow(All_KBAppData, 'App_Acronym', ActiveApp)[0])
+    },[ActiveApp])
     
-    //~~~~~~~~~~~~~~~~ Temp mySQL Plan data array ~~~~~~~~~~~~~~~~
-    const Plan_Acronym = ["Plan 1","Plan 2","Plan 3","Plan 4","Plan 5"];
+    //~~~~~~~~~~~~~~~~ mySQL Plan data array ~~~~~~~~~~~~~~~~
+    const [All_KBPlanData, setAll_KBPlanData] = useState([])
+    const [Plan_Acronym, setPlan_Acronym] = useState([])
+    const [ActivePlanData, setActivePlanData] = useState([])
+
+    //~~~~~~~~~~~~~~~~ Retrieving All Plan data from mySQL ~~~~~~~~~~~~~~~~
+    useEffect(()=>{
+        fetch('http://localhost:8080/getAllKBPlan',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            }
+            })
+        // Server returns response from the credentials
+        .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        .then((res_json)=>{
+            setAll_KBPlanData(res_json.KBPlanData)
+        })
+    },[])
+
+    useEffect(()=>{
+        let ActiveApp_Plans = selectArrayRow(All_KBPlanData, 'Plan_app_Acronym', ActiveApp)
+        setPlan_Acronym(selectArrayColumn(ActiveApp_Plans, 'Plan_MVP_name'))
+        setActivePlan()
+    },[All_KBPlanData, ActiveApp])
+
+    useEffect(()=>{
+        setActivePlanData(selectArrayRow(All_KBPlanData, 'Plan_MVP_name', ActivePlan)[0])
+    },[ActivePlan])
 
     //~~~~~~~~~~~~~~~~ Temp mySQL Task data array ~~~~~~~~~~~~~~~~
     //(data for each column is determine by task_state)
@@ -211,8 +252,8 @@ function KanbanBoardPage(props){
     const [PlanAppAcronym, setPlanAppAcronym] = useState();
         //Temp mySQL data, replace ActiveApp with AppAcronym
     useEffect(()=>{
-        setPlanAppAcronym(ActiveApp)
-    },[ActiveApp])
+        setPlanAppAcronym(ActiveAppData? ActiveAppData.App_Acronym:"-")
+    },[ActiveAppData])
         //Temp mySQL data, retrieve App Start & End and set it here
     var SelectedAppStartDate = "2022-08-01"
     var SelectedAppEndDate = "2022-10-31"
@@ -230,12 +271,15 @@ function KanbanBoardPage(props){
     const [TaskCreateDate, setTaskCreateDate] = useState();
         //Temp mySQL data, replace ActiveApp with AppAcronym
     useEffect(()=>{
-        setTaskAppAcronym(ActiveApp)
-    },[ActiveApp])
+        setTaskAppAcronym(ActiveAppData? ActiveAppData.App_Acronym:"-")
+    },[ActiveAppData])
     //Triggers when creating task/when task create display pops out
     useEffect(()=>{
             //Temp mySQL data, replace ActiveApp with AppAcronym _ RunningNumber
-        setTaskID(ActiveApp+"_"+ActiveApp)
+        
+        let App_Acronym = ActiveAppData? ActiveAppData.App_Acronym:"-"
+        let RunningNumber = ActiveAppData? ActiveAppData.App_Rnumber:"-"
+        setTaskID(App_Acronym+"_"+RunningNumber)
         
         let tempDate = new Date()
         setTaskNotes("[1] - Created by"+" "+token.username+" "+tempDate)
@@ -284,7 +328,7 @@ function KanbanBoardPage(props){
                             </div>
                             <div className='col-5'>
                                 <p>
-                                    <button 
+                                    {ActiveApp && (<button 
                                         style={{
                                             border: "1.5px solid darkslategray"
                                             ,borderRadius: "3px"
@@ -296,12 +340,12 @@ function KanbanBoardPage(props){
                                         onMouseLeave={()=>{setHoverEditApp(false)}}
                                     >
                                         Edit App
-                                    </button>
+                                    </button>)}
                                 </p>
                             </div>
                         </div>
                         {/*================ Plan Header ================*/}
-                        <div className='col-9' style={{borderLeft:"2px solid gray", borderLeftStyle:"dotted"}}>
+                        <div className='col-9' style={{borderLeft:"2px solid gray", borderLeftStyle:"dotted", paddingLeft:"3px"}}>
                             <h4>{Plan_Acronym? ButtonsMap(Plan_Acronym, ActivePlan, setActivePlan):"-"}</h4>
                         </div>
                     </div>
@@ -310,32 +354,33 @@ function KanbanBoardPage(props){
                     <div className='col-6' style={{marginTop: "-7px"}}>
                         {/*================ App Info ================*/}
                         <div className='col-9' >
-                            <div className='col-7'>
-                                <p style={{fontSize: "small"}}>&nbsp;Start date: {ActiveApp? ActiveApp:"-"}</p>
+                            <div className='col-9'>
+                                <p style={{fontSize: "small"}}>&nbsp;Start date: {ActiveAppData? FormatDate(ActiveAppData.App_startDate):"-"}</p>
                             </div>
 
-                            <div className='col-8'>
-                                <p style={{fontSize: "small"}}>&nbsp;End date: {ActiveApp? ActiveApp:"-"}</p>
+                            <div className='col-9'>
+                                <p style={{fontSize: "small"}}>&nbsp;End date: {ActiveAppData? FormatDate(ActiveAppData.App_endDate):"-"}</p>
                             </div>
 
                             <div className='col-6'>
-                                <p style={{fontSize: "small"}}>&nbsp;Description: {ActiveApp? ActiveApp:"-"}</p>
+                                <p style={{fontSize: "small"}}>&nbsp;Description: </p>
+                                <textarea rows="3" style={{width:'96%', resize:'none', marginTop:"-5px", marginLeft:"5px", padding:"10px"}} disabled defaultValue={ActiveAppData? ActiveAppData.App_Description:"-"}/>
                             </div>
                         </div>
 
                         {/*================ Plan Info ================*/}
-                        <div className='col-9' style={{borderLeft:"2px solid gray", borderLeftStyle:"dotted"}}>
+                        <div className='col-9' style={{borderLeft:"2px solid gray", borderLeftStyle:"dotted", paddingLeft:"3px"}}>
                             <div className='col-6'>
                                 <h4>&nbsp;Plan: {ActivePlan? ActivePlan:"-"}</h4>
                             {/* </div> */}
                             {/* <div className='col-7'> */}
-                                <p className='col-7' style={{fontSize: "small"}}>&nbsp;Start date: {ActivePlan? ActivePlan:"-"}</p>
+                                <p className='col-9' style={{fontSize: "small"}}>&nbsp;Start date: {ActivePlanData? FormatDate(ActivePlanData.Plan_startDate):"-"}</p>
                             {/* </div> */}
                             {/* <div className='col-8'> */}
-                                <p  className='col-8'style={{fontSize: "small"}}>&nbsp;End date: {ActivePlan? ActivePlan:"-"}</p>
+                                <p  className='col-9'style={{fontSize: "small"}}>&nbsp;End date: {ActivePlanData? FormatDate(ActivePlanData.Plan_endDate):"-"}</p>
                             </div>
                             <div className='col-5'>
-                                <button 
+                                {ActiveApp && (<button 
                                     style={{
                                         marginInline: "5px"
                                         ,marginBottom: "10px"
@@ -350,7 +395,7 @@ function KanbanBoardPage(props){
                                     onMouseLeave={()=>{setHoverCreatePlan(false)}}
                                 >
                                     Create Plan
-                                </button>
+                                </button>)}
                                         
                                 {/* testing ButtonTemplate */}
                                 {/* <ButtonTemplate name={"Create Plan"} isOpen={isOpen_CreatePlan} setIsOpen={setIsOpen_CreatePlan}/> */}
@@ -388,7 +433,7 @@ function KanbanBoardPage(props){
                     <div className='col-5' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
                         <h3>
                             Open
-                            <button 
+                            {ActiveApp && (<button 
                                 style={{
                                     float:"right"
                                     ,marginInline: "5px"
@@ -403,10 +448,10 @@ function KanbanBoardPage(props){
                                 onMouseLeave={()=>{setHoverCreateTask(false)}}
                             >
                                 Create Task
-                            </button>
+                            </button>)}
 
                             <p style={{fontSize: "small"}}>
-                                permit: {ActiveApp? ActiveApp:"-"}
+                                permit: {ActiveAppData? ActiveAppData.App_permit_Open:"-"}
                             </p>
                         </h3>
                         
@@ -419,7 +464,7 @@ function KanbanBoardPage(props){
                         <h3>
                             To Do
                             <p style={{fontSize: "small"}}>
-                                permit: {ActiveApp? ActiveApp:"-"}
+                                permit: {ActiveAppData? ActiveAppData.App_permit_toDoList:"-"}
                             </p>
                         </h3>
                         
@@ -433,7 +478,7 @@ function KanbanBoardPage(props){
                             Doing
                             <p 
                                 style={{fontSize: "small"}}>
-                                permit: {ActiveApp? ActiveApp:"-"}
+                                permit: {ActiveAppData? ActiveAppData.App_permit_Doing:"-"}
                             </p>
                         </h3>
 
@@ -447,7 +492,7 @@ function KanbanBoardPage(props){
                             Done
                             <p 
                                 style={{fontSize: "small"}}>
-                                permit: {ActiveApp? ActiveApp:"-"}
+                                permit: {ActiveAppData? ActiveAppData.App_permit_Done:"-"}
                             </p>
                         </h3>
 
@@ -461,7 +506,7 @@ function KanbanBoardPage(props){
                             Close
                             <p 
                                 style={{fontSize: "small"}}>
-                                permit: {ActiveApp? ActiveApp:"-"}
+                                &nbsp;
                             </p>
                         </h3>
 

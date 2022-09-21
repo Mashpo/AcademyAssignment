@@ -410,3 +410,20 @@ module.exports.getAllKBApp = (callback) => {
         }
     })
 }
+
+module.exports.getAllKBPlan = (callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_app_Acronym FROM plan`
+    )
+ 
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}
