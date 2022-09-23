@@ -50,4 +50,50 @@ async function updateAllUsers (req, res) {
 
 }
 
-module.exports = {updateOwnEmail, updateOwnPassword, updateAllUsers}
+function updateTaskState_LeftBTN (req, res) {
+
+    //Unpack Data
+    let Task_name = req.body.Task_name
+    let Task_state = req.body.Task_state;
+    var TaskStateToSet = ""
+
+    if(Task_state == "Doing"){
+        TaskStateToSet = "ToDo"
+    }
+    else if(Task_state == "Done"){
+        TaskStateToSet = "Doing"
+    }
+
+    user.updateTaskState_LeftRightBTN(Task_name, TaskStateToSet, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+function updateTaskState_RightBTN (req, res) {
+
+    //Unpack Data
+    let Task_name = req.body.Task_name
+    let Task_state = req.body.Task_state;
+    var TaskStateToSet = ""
+
+    if(Task_state == "Open"){
+        TaskStateToSet = "ToDo"
+    }
+    else if(Task_state == "ToDo"){
+        TaskStateToSet = "Doing"
+    }
+    else if(Task_state == "Doing"){
+        TaskStateToSet = "Done"
+    }
+    else if(Task_state == "Done"){
+        TaskStateToSet = "Close"
+    }
+
+    user.updateTaskState_LeftRightBTN(Task_name, TaskStateToSet, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+module.exports = {updateOwnEmail, updateOwnPassword, updateAllUsers, updateTaskState_LeftBTN, updateTaskState_RightBTN}

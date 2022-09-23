@@ -63,6 +63,7 @@ function KanbanBoardPage(props){
     const [All_KBAppData, setAll_KBAppData] = useState([])
     const [App_Acronym, setApp_Acronym] = useState([])
     const [ActiveAppData, setActiveAppData] = useState([])
+    const [RetriveUpdatedAllAppData, setRetriveUpdatedAllAppData] = useState(false)
     
     //~~~~~~~~~~~~~~~~ Retrieving All Application data from mySQL ~~~~~~~~~~~~~~~~
     useEffect(()=>{
@@ -77,8 +78,9 @@ function KanbanBoardPage(props){
         .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
         .then((res_json)=>{
             setAll_KBAppData(res_json.KBAppData)
+            setRetriveUpdatedAllAppData(false)
         })
-    },[])
+    },[RetriveUpdatedAllAppData])
 
     useEffect(()=>{
         setApp_Acronym(selectArrayColumn(All_KBAppData, 'App_Acronym'))
@@ -92,6 +94,7 @@ function KanbanBoardPage(props){
     const [All_KBPlanData, setAll_KBPlanData] = useState([])
     const [Plan_Acronym, setPlan_Acronym] = useState([])
     const [ActivePlanData, setActivePlanData] = useState([])
+    const [RetriveUpdatedAllPlanData, setRetriveUpdatedAllPlanData] = useState(false)
 
     //~~~~~~~~~~~~~~~~ Retrieving All Plan data from mySQL ~~~~~~~~~~~~~~~~
     useEffect(()=>{
@@ -106,8 +109,9 @@ function KanbanBoardPage(props){
         .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
         .then((res_json)=>{
             setAll_KBPlanData(res_json.KBPlanData)
+            setRetriveUpdatedAllPlanData(false)
         })
-    },[])
+    },[RetriveUpdatedAllPlanData])
 
     useEffect(()=>{
         let ActiveApp_Plans = selectArrayRow(All_KBPlanData, 'Plan_app_Acronym', ActiveApp)
@@ -119,23 +123,19 @@ function KanbanBoardPage(props){
         setActivePlanData(selectArrayRow(All_KBPlanData, 'Plan_MVP_name', ActivePlan)[0])
     },[ActivePlan])
 
-    //~~~~~~~~~~~~~~~~ Temp mySQL Task data array ~~~~~~~~~~~~~~~~
-    //(data for each column is determine by task_state)
-    // const Open_data = ["open 1","open 2","open 3","open 4","open 5"];
-    // const ToDo_data = ["todo 1","todo 2","todo 3","todo 4","todo 5"];
-    // const Doing_data = ["doing 1","doing 2","doing 3","doing 4","doing 5"];
-    // const Done_data = ["done 1","done 2","done 3","done 4","done 5"];
-    // const Close_data = ["close 1","close 2","close 3","close 4","close 5"];
-
+    //~~~~~~~~~~~~~~~~ mySQL Task data array ~~~~~~~~~~~~~~~~
     const [All_KBTaskData, setAll_KBTaskData] = useState([])
-    // const [Task_Acronym, setTask_Acronym] = useState([])
     const [ActiveAppAllTaskData, setActiveAppAllTaskData] = useState([])
     const [Open_data, setOpen_data] = useState([])
     const [ToDo_data, setToDo_data] = useState([])
     const [Doing_data, setDoing_data] = useState([])
     const [Done_data, setDone_data] = useState([])
     const [Close_data, setClose_data] = useState([])
+    const [RetriveUpdatedAllTaskData, setRetriveUpdatedAllTaskData] = useState(false)
 
+    //================ Task Table Refresh State after Shifting left or right with buttons ================
+    const [TaskTableRefreshAfterBTN, setTaskTableRefreshAfterBTN] = useState(false);
+    
     //~~~~~~~~~~~~~~~~ Retrieving All Task data from mySQL ~~~~~~~~~~~~~~~~
     useEffect(()=>{
         fetch('http://localhost:8080/getAllKBTask',{
@@ -149,8 +149,12 @@ function KanbanBoardPage(props){
         .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
         .then((res_json)=>{
             setAll_KBTaskData(res_json.KBTaskData)
+            setRetriveUpdatedAllTaskData(false)
+            if(TaskTableRefreshAfterBTN){
+                setTaskTableRefreshAfterBTN(false)
+            }
         })
-    },[])
+    },[RetriveUpdatedAllTaskData, TaskTableRefreshAfterBTN])
 
     useEffect(()=>{
         setActiveAppAllTaskData(selectArrayRow(All_KBTaskData, 'Task_app_Acronym', ActiveApp))
@@ -252,15 +256,25 @@ function KanbanBoardPage(props){
         togglePopup_CreateTask()
     }
 
-     //================ Editing Selected Task button ================
-     const [ActiveEditSelectedTask, setActiveEditSelectedTask] = useState()
-     //================ Editing Selected Task Popup display ================
-     const [selectedTaskData_EST, setSelectedTaskData_EST] = useState();
-     const [isOpen_EditSelectedTask, setIsOpen_EditSelectedTask] = useState(false);
-     const togglePopup_EditSelectedTask = () => {
-         setActiveEditSelectedTask();
-         setIsOpen_EditSelectedTask(!isOpen_EditSelectedTask);
-     }
+    //================ Editing Selected Task button ================
+    const [ActiveEditSelectedTask, setActiveEditSelectedTask] = useState()
+    //================ Editing Selected Task Popup display ================
+    const [selectedTaskData_EST, setSelectedTaskData_EST] = useState();
+    const [isOpen_EditSelectedTask, setIsOpen_EditSelectedTask] = useState(false);
+    const togglePopup_EditSelectedTask = () => {
+        setActiveEditSelectedTask();
+        setIsOpen_EditSelectedTask(!isOpen_EditSelectedTask);
+    }
+
+    //================ OnClick Selected Task Description (OSTD) ================
+    const [ActiveOSTD, setActiveOSTD] = useState()
+    //================ OnClick Selected Task Description (OSTD) Popup display ================
+    const [selectedTaskData_OSTD, setSelectedTaskData_OSTD] = useState();
+    const [isOpen_OSTD, setIsOpen_OSTD] = useState(false);
+    const togglePopup_OSTD = () => {
+        setActiveOSTD();
+        setIsOpen_OSTD(!isOpen_OSTD);
+    }
 
     //================ Audit Trail button ================
     const [ActiveAuditTrail, setActiveAuditTrail] = useState()
@@ -272,6 +286,61 @@ function KanbanBoardPage(props){
         setIsOpen_AuditTrail(!isOpen_AuditTrail);
     }
 
+    //================ Task Left Button ================
+    const [ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN] = useState()
+    const [selectedTaskData_LeftBTN, setSelectedTaskData_LeftBTN] = useState();
+    
+    //================ Task Right Button ================
+    const [ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN] = useState()
+    const [selectedTaskData_RightBTN, setSelectedTaskData_RightBTN] = useState();
+    
+   
+ 
+    useEffect(()=>{ 
+        if(selectedTaskData_LeftBTN){
+            console.log("left",selectedTaskData_LeftBTN.Task_name)
+
+            fetch('http://localhost:8080/updateTaskState_LeftBTN',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            },
+            // POST content
+            body: JSON.stringify({Task_name: selectedTaskData_LeftBTN.Task_name, Task_state: selectedTaskData_LeftBTN.Task_state})
+            })
+            // Server returns response from the credentials
+            .then(async (res) => await res.json())
+
+
+            setActiveSelectedTask_LeftBTN()
+            setSelectedTaskData_LeftBTN()
+            setTaskTableRefreshAfterBTN(true)
+        }
+    },[selectedTaskData_LeftBTN])
+
+    useEffect(()=>{
+        if(selectedTaskData_RightBTN){
+            console.log("right",selectedTaskData_RightBTN)
+
+            fetch('http://localhost:8080/updateTaskState_RightBTN',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            },
+            // POST content
+            body: JSON.stringify({Task_name: selectedTaskData_RightBTN.Task_name, Task_state: selectedTaskData_RightBTN.Task_state})
+            })
+            // Server returns response from the credentials
+            .then(async (res) => await res.json())
+
+
+            setActiveSelectedTask_RightBTN()
+            setSelectedTaskData_RightBTN()
+            setTaskTableRefreshAfterBTN(true)
+        }
+    },[selectedTaskData_RightBTN])
 
     //~~~~~~~~~~~~~~~~ App Set State ~~~~~~~~~~~~~~~~
     const [AppAcronym, setAppAcronym] = useState();
@@ -404,7 +473,7 @@ function KanbanBoardPage(props){
 
                             <div className='col-6'>
                                 <p style={{fontSize: "small"}}>&nbsp;Description: </p>
-                                <textarea rows="3" style={{width:'96%', resize:'none', marginTop:"-5px", marginLeft:"5px", padding:"10px"}} disabled defaultValue={ActiveAppData? ActiveAppData.App_Description:"-"}/>
+                                <textarea rows="3" style={{width:'96%', resize:'vertical', marginTop:"-5px", marginLeft:"5px", padding:"10px"}} disabled defaultValue={ActiveAppData? ActiveAppData.App_Description:"-"}/>
                             </div>
                         </div>
 
@@ -471,7 +540,7 @@ function KanbanBoardPage(props){
                 {/*================ Task Activities ================*/}
                     <div className='col-6h'>
                         {/*~~~~~~~~~~ Open ~~~~~~~~~~*/}
-                        <div className='col-5h' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5Open' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
                             <h3>
                                 Open
                                 {ActiveApp && (<button 
@@ -495,13 +564,18 @@ function KanbanBoardPage(props){
                                     permit: {ActiveAppData? ActiveAppData.App_permit_Open:"-"}
                                 </p>
                             </h3>
-                            
-                            {Open_data? TaskDisplayTemplate(Open_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                        
+                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                                {Open_data? TaskDisplayTemplate(Open_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                    , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
+                                    , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Open-</p>
+                            </div>
                         </div>
                         
                         {/*~~~~~~~~~~ To Do ~~~~~~~~~~*/}
-                        <div className='col-5ha' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5ToDo' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
                             <h3>
                                 To Do
                                 <p style={{fontSize: "small"}}>
@@ -509,12 +583,17 @@ function KanbanBoardPage(props){
                                 </p>
                             </h3>
                             
-                            {ToDo_data? TaskDisplayTemplate(ToDo_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                                {ToDo_data? TaskDisplayTemplate(ToDo_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                    , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
+                                    , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of To Do-</p>
+                            </div>
                         </div>
                         
                         {/*~~~~~~~~~~ Doing~~~~~~~~~~*/}
-                        <div className='col-5ha' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5Doing' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
                             <h3>
                                 Doing
                                 <p 
@@ -523,12 +602,17 @@ function KanbanBoardPage(props){
                                 </p>
                             </h3>
 
-                            {Doing_data? TaskDisplayTemplate(Doing_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                                {Doing_data? TaskDisplayTemplate(Doing_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                    , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
+                                    , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Doing-</p>
+                            </div>
                         </div>
                         
                         {/*~~~~~~~~~~ Done ~~~~~~~~~~*/}
-                        <div className='col-5ha' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5Done' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
                             <h3>
                                 Done
                                 <p 
@@ -537,12 +621,17 @@ function KanbanBoardPage(props){
                                 </p>
                             </h3>
 
-                            {Done_data? TaskDisplayTemplate(Done_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                                {Done_data? TaskDisplayTemplate(Done_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                    , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
+                                    , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Done-</p>
+                            </div>
                         </div>
 
                         {/*~~~~~~~~~~ Close ~~~~~~~~~~*/}
-                        <div className='col-5ha' style={{padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5Close' style={{padding: "2px", minHeight:"500px"}}> 
                             <h3>
                                 Close
                                 <p 
@@ -551,8 +640,13 @@ function KanbanBoardPage(props){
                                 </p>
                             </h3>
 
-                            {Close_data? TaskDisplayTemplate(Close_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-                                , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask):NoTaskDataTemp()}
+                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                                {Close_data? TaskDisplayTemplate(Close_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
+                                    , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
+                                    , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Close-</p>
+                            </div>
                         </div>
                     </div>
             </div>
@@ -570,6 +664,7 @@ function KanbanBoardPage(props){
                             ,(update_status)=>{
                                 if(update_status.success){
                                     toast.success("Update Successful", {hideProgressBar:true})
+                                    setRetriveUpdatedAllAppData(true)
                                     togglePopup_CreateApp()
                                 }
                                 else if (update_status.errMsg == "duplicated"){
@@ -723,6 +818,7 @@ function KanbanBoardPage(props){
                         ,(update_status)=>{
                             if(update_status.success){
                                 toast.success("Update Successful", {hideProgressBar:true})
+                                setRetriveUpdatedAllPlanData(true)
                                 togglePopup_CreatePlan()
                             }
                             else if (update_status.errMsg == "duplicated"){
@@ -769,6 +865,7 @@ function KanbanBoardPage(props){
                             ,(update_status)=>{
                                 if(update_status.success){
                                     toast.success("Update Successful", {hideProgressBar:true})
+                                    setRetriveUpdatedAllTaskData(true)
                                     togglePopup_CreateTask()
                                 }
                                 else if (update_status.errMsg == "duplicated"){
@@ -834,6 +931,15 @@ function KanbanBoardPage(props){
                 <button onClick={()=>{console.log("test")}}>Test button</button>
                 </>}
                 handleClose={togglePopup_AuditTrail}
+            />}
+
+            {/* ================ OnClick Selected Task Description (OSTD) Popup display ================ */}
+            {isOpen_OSTD && <Popup
+                content={<>
+                <b>Audit Trail: {selectedTaskData_OSTD}</b>
+                <textarea rows="3" style={{width:'96%', resize:'vertical', marginTop:"-5px", marginLeft:"5px", padding:"10px"}} disabled defaultValue={selectedTaskData_OSTD}/>
+                </>}
+                handleClose={togglePopup_OSTD}
             />}
 
             <div>

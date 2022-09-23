@@ -247,6 +247,24 @@ module.exports.updateAllUsers = (username, password, email, active_status, group
     })
 }
 
+module.exports.updateTaskState_LeftRightBTN = (Task_name, TaskStateToSet, callback) => {
+    
+    // Query
+    let query = mysql.format(
+       'UPDATE task SET Task_state=? WHERE Task_name=?',
+       [TaskStateToSet, Task_name]
+   )
+
+   // Querying
+   db.query(query, (err,result)=>{
+       if (err) {
+           callback(err.sqlMessage, false);
+       } else {
+           callback(null, true)
+       }
+   })  
+}
+
 module.exports.insertG = (newGroup, callback) => {
    
     // Query

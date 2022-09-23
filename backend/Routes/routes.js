@@ -45,6 +45,8 @@ router.post("/getAllKBTask", RetrieveDataContorl.getAllKBTask)
 router.post("/updateOwnEmail", UpdateDataControl.updateOwnEmail)
 router.post("/updateOwnPassword", UpdateDataControl.updateOwnPassword)
 router.post("/updateAllUsers", UpdateDataControl.updateAllUsers)
+router.post("/updateTaskState_LeftBTN", UpdateDataControl.updateTaskState_LeftBTN)
+router.post("/updateTaskState_RightBTN", UpdateDataControl.updateTaskState_RightBTN)
 
 //Insert to SQL
 router.post("/insertG", InsertData_Control.insertG)

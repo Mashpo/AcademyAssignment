@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react'
 
 
 function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
-    , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask){
+    , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
+    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN){
+
+    function FormatDate(date) { /* e.g. 20 Sept 2022*/
+        let f_date = new Date(date)
+        return f_date.toLocaleDateString("en-GB", {day: 'numeric', month: 'short' /*or long*/, year: 'numeric'})
+    }
 
     //================ Task Display ================
     const [IsHover, setIsHover] = useState(false)
@@ -16,6 +22,14 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
     const [IsHover5, setIsHover5] = useState(false)
     const [IsHover6, setIsHover6] = useState()
 
+    //================ Right button ================
+    const [IsHover7, setIsHover7] = useState(false)
+    const [IsHover8, setIsHover8] = useState()
+
+    //================ Left button ================
+    const [IsHover9, setIsHover9] = useState(false)
+    const [IsHover10, setIsHover10] = useState()
+
     //================ Audit Trail Popup display ================
     const togglePopup_AT = () => {
         setIsOpen_AuditTrail(!isOpen_AuditTrail);
@@ -26,14 +40,13 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
         setIsOpen_EditSelectedTask(!isOpen_EditSelectedTask);
     }
    
-    console.log(data)
     return(
         <>
             {data.map((row)=>
                 <div 
                     key = {row.Task_name}
                     className='col-6 tooltip' 
-                    style={{borderRadius: "25px", border: '2px solid black', padding: "10px", marginBottom:"5px",backgroundColor:(((IsHover === true)&&(IsHover2 === row.Task_name))?  "#6b81cd" : "#b4bfe8")}}
+                    style={{borderRadius: "25px", border: '2px solid black', paddingLeft: "5px", paddingRight: "5px", marginBottom:"5px",backgroundColor:(((IsHover === true)&&(IsHover2 === row.Task_name))?  "#6b81cd" : "#b4bfe8")}}
                     onMouseEnter={()=>{setIsHover(true); setIsHover2(row.Task_name)}}
                     onMouseLeave={()=>{setIsHover(false); setIsHover2(row.Task_name)}}
                 >
@@ -62,14 +75,64 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                     {/*============ task hover over info ============*/}
                     <span className="tooltiptext" style={{backgroundColor:"lightgray"}}>
                         <p style={{fontSize: "small", textAlign:"center", padding:"5px"}}>
-                            id: {row.Task_id}
+                            <b>id:</b> {row.Task_id}
                             <br/>
-                            Creator: {row.Task_creator}
+                            <b>Creator:</b> {row.Task_creator}
                             <br/>
-                            Date Created: {row.Task_createDate}
+                            <b>Date Created:</b> <br/> {FormatDate(row.Task_createDate)}
                         </p>
                     </span>
 
+                    <div className='col-6'>
+                    {/*============ Right Button ============*/}
+                    {(row.Task_state!="Close") && (<button 
+                        style={{
+                            float:"right"
+                            ,marginInline: "5px"
+                            ,marginBottom: "10px"
+                            ,border: "1.5px solid darkslategray"
+                            ,borderRadius: "100px"
+                            ,color:((ActiveSelectedTask_RightBTN === row.Task_name)||((IsHover7)&&(IsHover8 === row.Task_name))?  "white" : "black")
+                            ,backgroundColor:((ActiveSelectedTask_RightBTN === row.Task_name)||((IsHover7)&&(IsHover8 === row.Task_name))?  "lightslategray" : "lightgray")
+                        }}
+                        
+                        onClick={()=>{
+                            setActiveSelectedTask_RightBTN(row.Task_name)
+                            setSelectedTaskData_RightBTN(row)
+                        }}
+
+                        onMouseEnter={()=>{setIsHover7(true); setIsHover8(row.Task_name)}}
+                        onMouseLeave={()=>{setIsHover7(false); setIsHover8(row.Task_name)}}
+                    >
+                        &rarr; {/*HTML Entity for right arrow */}
+                    </button>)}
+
+                    {/*============ Left Button ============*/}
+                    {((row.Task_state=="Doing") || (row.Task_state=="Done")) && (<button 
+                        style={{
+                            float:"right"
+                            ,marginInline: "5px"
+                            ,marginBottom: "10px"
+                            ,border: "1.5px solid darkslategray"
+                            ,borderRadius: "100px"
+                            ,color:((ActiveSelectedTask_LeftBTN === row.Task_name)||((IsHover9)&&(IsHover10 === row.Task_name))?  "white" : "black")
+                            ,backgroundColor:((ActiveSelectedTask_LeftBTN === row.Task_name)||((IsHover9)&&(IsHover10 === row.Task_name))?  "lightslategray" : "lightgray")
+                        }}
+                        
+                        onClick={()=>{
+                            setActiveSelectedTask_LeftBTN(row.Task_name)
+                            setSelectedTaskData_LeftBTN(row)
+                        }}
+
+                        onMouseEnter={()=>{setIsHover9(true); setIsHover10(row.Task_name)}}
+                        onMouseLeave={()=>{setIsHover9(false); setIsHover10(row.Task_name)}}
+                    >
+                        &larr; {/*HTML Entity for left arrow */}
+                    </button>)}
+
+                    </div>
+
+                    <div className='col-6'>
                     {/*============ Edit Task Button ============*/}
                     <button 
                         style={{
@@ -85,7 +148,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                         onClick={()=>{
                             setActiveEditSelectedTask(row.Task_name)
                             setSelectedTaskData_EST(row.Task_name)
-                            //Audit trail stuff to display
+                            //Selected Task stuff to display
                             togglePopup_EST()
                         }}
 
@@ -119,7 +182,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                     >
                         Audit Trail
                     </button>
-
+                    </div>
                 </div>
             )}
         </>
