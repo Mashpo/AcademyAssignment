@@ -73,7 +73,7 @@ function KanbanBoardPage(props){
             'Content-Type': 'application/json',
             'Accept': 'application/json'
             }
-            })
+        })
         // Server returns response from the credentials
         .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
         .then((res_json)=>{
@@ -87,12 +87,14 @@ function KanbanBoardPage(props){
     },[All_KBAppData])
 
     useEffect(()=>{
+
         setActiveAppData(selectArrayRow(All_KBAppData, 'App_Acronym', ActiveApp)[0])
-    },[ActiveApp])
-    
+       
+    },[ActiveApp, All_KBAppData])
+
     //~~~~~~~~~~~~~~~~ mySQL Plan data array ~~~~~~~~~~~~~~~~
     const [All_KBPlanData, setAll_KBPlanData] = useState([])
-    const [Plan_Acronym, setPlan_Acronym] = useState([])
+    const [Plan_MVPName, setPlan_MVPName] = useState([])
     const [ActivePlanData, setActivePlanData] = useState([])
     const [RetriveUpdatedAllPlanData, setRetriveUpdatedAllPlanData] = useState(false)
 
@@ -104,7 +106,7 @@ function KanbanBoardPage(props){
             'Content-Type': 'application/json',
             'Accept': 'application/json'
             }
-            })
+        })
         // Server returns response from the credentials
         .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
         .then((res_json)=>{
@@ -115,7 +117,7 @@ function KanbanBoardPage(props){
 
     useEffect(()=>{
         let ActiveApp_Plans = selectArrayRow(All_KBPlanData, 'Plan_app_Acronym', ActiveApp)
-        setPlan_Acronym(selectArrayColumn(ActiveApp_Plans, 'Plan_MVP_name'))
+        setPlan_MVPName(selectArrayColumn(ActiveApp_Plans, 'Plan_MVP_name'))
         setActivePlan()
     },[All_KBPlanData, ActiveApp])
 
@@ -144,7 +146,7 @@ function KanbanBoardPage(props){
             'Content-Type': 'application/json',
             'Accept': 'application/json'
             }
-            })
+        })
         // Server returns response from the credentials
         .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
         .then((res_json)=>{
@@ -168,9 +170,6 @@ function KanbanBoardPage(props){
         setClose_data(selectArrayRow(ActiveAppAllTaskData, 'Task_state', "Close"))
     },[ActiveAppAllTaskData])
 
-    // if(Open_data!=undefined){
-    // console.log(JSON.parse(Open_data[0]))
-    // }
     //~~~~~~~~~~~~~~~~ mySQL All Group data array ~~~~~~~~~~~~~~~~
     const [ResultAllG, setResultAllG] = useState(false)
         //Retrieving All Groups from SQL
@@ -181,8 +180,57 @@ function KanbanBoardPage(props){
     console.log(ResultAllG.errMsg)
     }
 
+    //~~~~~~~~~~~~~~~~ Determining App permissions ~~~~~~~~~~~~~~~~
+    const [PermitCreateApp, setPermitCreateApp] = useState()
+    const [PermitCreatePlan, setPermitCreatePlan] = useState()
+    const [PermitCreateTask, setPermitCreateTask] = useState()
+    const [PermitShiftTaskFromOpen, setPermitShiftTaskFromOpen] = useState()
+    const [PermitShiftTaskFromToDo, setPermitShiftTaskFromToDo] = useState()
+    const [PermitShiftTaskFromDoing, setPermitShiftTaskFromDoing] = useState()
+    const [PermitShiftTaskFromDone, setPermitShiftTaskFromDone] = useState()
+
+    const PermitCheck = async (permitToCheck)=>{
+        fetch('http://localhost:8080/getPermitCheck',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            },
+            // POST content
+            body: JSON.stringify({username: token.username, permitToCheck: permitToCheck})
+        })
+        // Server returns response from the credentials
+        .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        .then((res_json)=>{
+            if(res_json.errMsg!==null){
+                return res_json.errMsg
+            }
+            return res_json.PermitBoolean
+        })
+    }
+
+    useEffect(()=>{
+        
+        const settingPermitBoolean = async()=>{
+            console.log(await PermitCheck('P_Lead'))
+            setPermitCreateApp(await PermitCheck('P_Lead'))
+            setPermitCreatePlan(await PermitCheck('P_Manager'))
+            if(ActiveAppData){
+                setPermitCreateTask(await PermitCheck(ActiveAppData.App_permit_Create))
+                setPermitShiftTaskFromOpen(await PermitCheck(ActiveAppData.App_permit_Open))
+                setPermitShiftTaskFromToDo(await PermitCheck(ActiveAppData.App_permit_toDoList))
+                setPermitShiftTaskFromDoing(await PermitCheck(ActiveAppData.App_permit_Doing))
+                setPermitShiftTaskFromDone(await PermitCheck(ActiveAppData.App_permit_Done))
+            }
+        }
+        
+        settingPermitBoolean()
+
+        // console.log(PermitCreateApp)
+    },[ActiveAppData])
     
-    
+
+
     //================ Create App Popup display ================
     const [ActiveCreateApp, setActiveCreateApp] = useState(false)
     const [HoverCreateApp, setHoverCreateApp] = useState(false)
@@ -298,8 +346,6 @@ function KanbanBoardPage(props){
  
     useEffect(()=>{ 
         if(selectedTaskData_LeftBTN){
-            console.log("left",selectedTaskData_LeftBTN.Task_name)
-
             fetch('http://localhost:8080/updateTaskState_LeftBTN',{
             method: 'POST',
             headers: {
@@ -307,11 +353,10 @@ function KanbanBoardPage(props){
             'Accept': 'application/json'
             },
             // POST content
-            body: JSON.stringify({Task_name: selectedTaskData_LeftBTN.Task_name, Task_state: selectedTaskData_LeftBTN.Task_state})
+            body: JSON.stringify({Username: token.username, Task_name: selectedTaskData_LeftBTN.Task_name, Task_state: selectedTaskData_LeftBTN.Task_state, Task_notes: selectedTaskData_LeftBTN.Task_notes})
             })
-            // Server returns response from the credentials
+            // Server returns response
             .then(async (res) => await res.json())
-
 
             setActiveSelectedTask_LeftBTN()
             setSelectedTaskData_LeftBTN()
@@ -321,8 +366,6 @@ function KanbanBoardPage(props){
 
     useEffect(()=>{
         if(selectedTaskData_RightBTN){
-            console.log("right",selectedTaskData_RightBTN)
-
             fetch('http://localhost:8080/updateTaskState_RightBTN',{
             method: 'POST',
             headers: {
@@ -330,11 +373,10 @@ function KanbanBoardPage(props){
             'Accept': 'application/json'
             },
             // POST content
-            body: JSON.stringify({Task_name: selectedTaskData_RightBTN.Task_name, Task_state: selectedTaskData_RightBTN.Task_state})
+            body: JSON.stringify({Username: token.username, Task_name: selectedTaskData_RightBTN.Task_name, Task_state: selectedTaskData_RightBTN.Task_state, Task_notes: selectedTaskData_RightBTN.Task_notes})
             })
-            // Server returns response from the credentials
+            // Server returns response
             .then(async (res) => await res.json())
-
 
             setActiveSelectedTask_RightBTN()
             setSelectedTaskData_RightBTN()
@@ -391,13 +433,12 @@ function KanbanBoardPage(props){
         setTaskID(App_Acronym+"_"+RunningNumber)
         
         let tempDate = new Date()
-        setTaskNotes("[1] - Created by"+" "+token.username+" "+tempDate)
+        setTaskNotes("- Created by"+" "+token.username+`\n`+"       Time Stamp: "+tempDate+`\n\n`+"-End of Audit Trail-")
         setTaskState("Open")
         setTaskCreator(token.username)
         setTaskOwner(token.username)
         setTaskCreateDate(tempDate.toISOString().split('T')[0])
     },[(isOpen_CreateTask && TaskAppAcronym)])
-
 
     return(
         <>
@@ -431,7 +472,7 @@ function KanbanBoardPage(props){
                     {/*================ App & Plan Header ================*/}
                     <div className='col-6' style={{marginBottom: "-15px"}}>
                         {/*================ App Header ================*/}
-                        <div className='col-9'>
+                        <div className='col-9' style={{borderRight:"2px solid gray", borderRightStyle:"dotted"}}>
                             <div className='col-10'>
                                 <h3>&nbsp;<u>App: {ActiveApp? ActiveApp:"-"}</u></h3>
                             </div>
@@ -454,39 +495,39 @@ function KanbanBoardPage(props){
                             </div>
                         </div>
                         {/*================ Plan Header ================*/}
-                        <div className='col-9' style={{borderLeft:"2px solid gray", borderLeftStyle:"dotted", paddingLeft:"3px"}}>
-                            <h4>{Plan_Acronym? ButtonsMap(Plan_Acronym, ActivePlan, setActivePlan):"-"}</h4>
+                        <div className='col-9' style={{paddingLeft:"3px"}}>
+                            <h4>{Plan_MVPName? ButtonsMap(Plan_MVPName, ActivePlan, setActivePlan):"-"}</h4>
                         </div>
                     </div>
 
 
                     <div className='col-6' style={{marginTop: "-7px"}}>
                         {/*================ App Info ================*/}
-                        <div className='col-9' >
+                        <div className='col-9' style={{borderRight:"2px solid gray", borderRightStyle:"dotted"}}>
                             <div className='col-9'>
-                                <p style={{fontSize: "small"}}>&nbsp;Start date: {ActiveAppData? FormatDate(ActiveAppData.App_startDate):"-"}</p>
+                                <p style={{fontSize: "small"}}>&nbsp;Start date: {((ActiveAppData) && (ActiveAppData.App_startDate !== null))? FormatDate(ActiveAppData.App_startDate):"-"}</p>
                             </div>
 
                             <div className='col-9'>
-                                <p style={{fontSize: "small"}}>&nbsp;End date: {ActiveAppData? FormatDate(ActiveAppData.App_endDate):"-"}</p>
+                                <p style={{fontSize: "small"}}>&nbsp;End date: {((ActiveAppData) && (ActiveAppData.App_endDate !== null))? FormatDate(ActiveAppData.App_endDate):"-"}</p>
                             </div>
 
                             <div className='col-6'>
                                 <p style={{fontSize: "small"}}>&nbsp;Description: </p>
-                                <textarea rows="3" style={{width:'96%', resize:'vertical', marginTop:"-5px", marginLeft:"5px", padding:"10px"}} disabled defaultValue={ActiveAppData? ActiveAppData.App_Description:"-"}/>
+                                <textarea rows="3" style={{width:'96%', resize:'vertical', marginTop:"-5px", marginLeft:"5px", padding:"10px"}} disabled defaultValue={((ActiveAppData) && (ActiveAppData.App_Description !== null)) ? ActiveAppData.App_Description:"-"}/>
                             </div>
                         </div>
 
                         {/*================ Plan Info ================*/}
-                        <div className='col-9' style={{borderLeft:"2px solid gray", borderLeftStyle:"dotted", paddingLeft:"3px"}}>
+                        <div className='col-9' style={{paddingLeft:"3px"}}>
                             <div className='col-6'>
                                 <h4>&nbsp;Plan: {ActivePlan? ActivePlan:"-"}</h4>
                             {/* </div> */}
                             {/* <div className='col-7'> */}
-                                <p className='col-9' style={{fontSize: "small"}}>&nbsp;Start date: {ActivePlanData? FormatDate(ActivePlanData.Plan_startDate):"-"}</p>
+                                <p className='col-9' style={{fontSize: "small"}}>&nbsp;Start date: {((ActivePlanData) && (ActivePlanData.Plan_startDate !== null))? FormatDate(ActivePlanData.Plan_startDate):"-"}</p>
                             {/* </div> */}
                             {/* <div className='col-8'> */}
-                                <p  className='col-9'style={{fontSize: "small"}}>&nbsp;End date: {ActivePlanData? FormatDate(ActivePlanData.Plan_endDate):"-"}</p>
+                                <p  className='col-9'style={{fontSize: "small"}}>&nbsp;End date: {((ActivePlanData) && (ActivePlanData.Plan_endDate !== null))? FormatDate(ActivePlanData.Plan_endDate):"-"}</p>
                             </div>
                             <div className='col-5'>
                                 {ActiveApp && (<button 
@@ -540,7 +581,7 @@ function KanbanBoardPage(props){
                 {/*================ Task Activities ================*/}
                     <div className='col-6h'>
                         {/*~~~~~~~~~~ Open ~~~~~~~~~~*/}
-                        <div className='col-5Open' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5Open' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"475px"}}> 
                             <h3>
                                 Open
                                 {ActiveApp && (<button 
@@ -561,77 +602,77 @@ function KanbanBoardPage(props){
                                 </button>)}
 
                                 <p style={{fontSize: "small"}}>
-                                    permit: {ActiveAppData? ActiveAppData.App_permit_Open:"-"}
+                                    permit: {((ActiveAppData) && (ActiveAppData.App_permit_Open !== null))? ActiveAppData.App_permit_Open:"-"}
                                 </p>
                             </h3>
                         
-                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                            <div style={{maxHeight:"380px",  minHeight:"380px", overflowY: "scroll"}}> 
                                 {Open_data? TaskDisplayTemplate(Open_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , "ActiveAppData.App_permit_Open", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Open-</p>
                             </div>
                         </div>
                         
                         {/*~~~~~~~~~~ To Do ~~~~~~~~~~*/}
-                        <div className='col-5ToDo' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5ToDo' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"475px"}}> 
                             <h3>
                                 To Do
                                 <p style={{fontSize: "small"}}>
-                                    permit: {ActiveAppData? ActiveAppData.App_permit_toDoList:"-"}
+                                    permit: {((ActiveAppData) && (ActiveAppData.App_permit_toDoList !== null))? ActiveAppData.App_permit_toDoList:"-"}
                                 </p>
                             </h3>
                             
-                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                            <div style={{maxHeight:"380px", minHeight:"380px", overflowY: "scroll"}}> 
                                 {ToDo_data? TaskDisplayTemplate(ToDo_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , "ActiveAppData.App_permit_toDoList", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of To Do-</p>
                             </div>
                         </div>
                         
                         {/*~~~~~~~~~~ Doing~~~~~~~~~~*/}
-                        <div className='col-5Doing' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5Doing' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"475px"}}> 
                             <h3>
                                 Doing
                                 <p 
                                     style={{fontSize: "small"}}>
-                                    permit: {ActiveAppData? ActiveAppData.App_permit_Doing:"-"}
+                                    permit: {((ActiveAppData) && (ActiveAppData.App_permit_Doing !== null))? ActiveAppData.App_permit_Doing:"-"}
                                 </p>
                             </h3>
 
-                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                            <div style={{maxHeight:"380px", minHeight:"380px", overflowY: "scroll"}}> 
                                 {Doing_data? TaskDisplayTemplate(Doing_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , "ActiveAppData.App_permit_Doing", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Doing-</p>
                             </div>
                         </div>
                         
                         {/*~~~~~~~~~~ Done ~~~~~~~~~~*/}
-                        <div className='col-5Done' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5Done' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"475px"}}> 
                             <h3>
                                 Done
                                 <p 
                                     style={{fontSize: "small"}}>
-                                    permit: {ActiveAppData? ActiveAppData.App_permit_Done:"-"}
+                                    permit: {((ActiveAppData) && (ActiveAppData.App_permit_Done !== null))? ActiveAppData.App_permit_Done:"-"}
                                 </p>
                             </h3>
 
-                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                            <div style={{maxHeight:"380px", minHeight:"380px", overflowY: "scroll"}}> 
                                 {Done_data? TaskDisplayTemplate(Done_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , "ActiveAppData.App_permit_Done", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Done-</p>
                             </div>
                         </div>
 
                         {/*~~~~~~~~~~ Close ~~~~~~~~~~*/}
-                        <div className='col-5Close' style={{padding: "2px", minHeight:"500px"}}> 
+                        <div className='col-5Close' style={{padding: "2px", minHeight:"475px"}}> 
                             <h3>
                                 Close
                                 <p 
@@ -640,11 +681,11 @@ function KanbanBoardPage(props){
                                 </p>
                             </h3>
 
-                            <div style={{maxHeight:"400px", minHeight:"400px", overflowY: "scroll"}}> 
+                            <div style={{maxHeight:"380px", minHeight:"380px", overflowY: "scroll"}}> 
                                 {Close_data? TaskDisplayTemplate(Close_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , "Close State Don't need check for permit", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Close-</p>
                             </div>
                         </div>
@@ -861,11 +902,13 @@ function KanbanBoardPage(props){
             )}
             {isOpen_CreateTask && TaskAppAcronym && <Popup
                 content={<>
-                    <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveCreateTask(TaskName,TaskDescription,TaskNotes,TaskID, TaskPlan, TaskAppAcronym, TaskState, TaskCreator, TaskOwner, TaskCreateDate 
+                    <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveCreateTask(ActiveAppData.App_Rnumber, TaskName,TaskDescription,TaskNotes,TaskID, TaskPlan, TaskAppAcronym, TaskState, TaskCreator, TaskOwner, TaskCreateDate 
                             ,(update_status)=>{
                                 if(update_status.success){
                                     toast.success("Update Successful", {hideProgressBar:true})
                                     setRetriveUpdatedAllTaskData(true)
+                                    // One line below is re-used to update App_Rnumber
+                                    setRetriveUpdatedAllAppData(true)
                                     togglePopup_CreateTask()
                                 }
                                 else if (update_status.errMsg == "duplicated"){
@@ -887,14 +930,14 @@ function KanbanBoardPage(props){
                                     <Multiselect
                                         placeholder="Select Plan"
                                         hidePlaceholder='true'
-                                        displayValue="group_name" 
+                                        displayValue="Plan_MVPName" 
                                         onRemove={(selection) => {
                                             setTaskPlan(selection)
                                         }}
                                         onSelect={(selection) => {
                                             setTaskPlan(selection)
                                         }}
-                                        options={ResultAllG.GroupData.filter(item => item.group_name !== 'admin')}
+                                        options={Plan_MVPName.map((item) => {return{Plan_MVPName:item}})}
                                         selectedValues={TaskPlan}
                                         showCheckbox
                                         selectionLimit={1}
@@ -926,9 +969,16 @@ function KanbanBoardPage(props){
             {/* ================ Audit Trail Popup display ================ */}
             {isOpen_AuditTrail && <Popup
                 content={<>
-                <b>Audit Trail: {selectedTaskData_AT}</b>
-                <p>{selectedTaskData_AT}</p>
-                <button onClick={()=>{console.log("test")}}>Test button</button>
+                <b>Audit Trail: {selectedTaskData_AT.Task_name}</b>
+                {/* <p style={{whiteSpace:'pre-wrap'}}>{selectedTaskData_AT.Task_notes}</p> */}
+                <textarea 
+                    rows="3" 
+                    style={{width:'96%', height:"450px", resize:'vertical', marginTop:"5px", marginLeft:"5px", padding:"10px"}} 
+                    disabled 
+                    defaultValue={selectedTaskData_AT.Task_notes}
+                />
+                <br/>
+                <button onClick={()=>{console.log("test")}}>Edit</button>
                 </>}
                 handleClose={togglePopup_AuditTrail}
             />}

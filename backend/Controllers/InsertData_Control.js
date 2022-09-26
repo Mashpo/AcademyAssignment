@@ -66,14 +66,15 @@ function CreateKBPlan (req, res) {
 
 function CreateKBTask (req, res) {
     //Unpack Data
+    let App_Rnumber = req.body.App_Rnumber + 1
     let TaskName = req.body.TaskName
     let TaskDescription = req.body.TaskDescription
     let TaskNotes = req.body.TaskNotes
     let TaskID = req.body.TaskID
 
-    let TaskPlan = "temp"
+    let TaskPlan = ""
     if(req.body.TaskPlan){
-        TaskPlan = req.body.TaskPlan[0].group_name
+        TaskPlan = req.body.TaskPlan[0].Plan_MVPName
     }
     else if(!req.body.TaskPlan){
         TaskPlan = req.body.TaskPlan
@@ -86,8 +87,16 @@ function CreateKBTask (req, res) {
     let TaskCreateDate = req.body.TaskCreateDate
 
     user.CreateKBTask(TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate, (err, results)=>{
-        res.send({errMsg:err, success: results})
+        if(results){
+            user.updateAppRnumber(App_Rnumber, TaskAppAcronym, (err, results)=>{
+                res.send({errMsg:err, success: results})
+            })
+        }
+        else if(!results){
+            res.send({errMsg:err, success: results})
+        }
     })
+    
 
 }
 

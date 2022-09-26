@@ -83,7 +83,7 @@ module.exports.checkLogin = (username, password, callback) => {
     
 }
 
-module.exports.getCurrentGroup = (username, callback) => {
+module.exports.getCurrentGroup_Admin = (username, callback) => {
 
     // Query
     let query = mysql.format(
@@ -95,7 +95,7 @@ module.exports.getCurrentGroup = (username, callback) => {
     db.query(query, (err,result)=>{
         //Error
         if (err) {
-            response.send(err.sqlMessage);
+            callback(err.sqlMessage, null);
         } 
 
         //No user group found
@@ -112,6 +112,41 @@ module.exports.getCurrentGroup = (username, callback) => {
         }
 
         else  {
+            callback(null, false)
+        }
+
+    })
+}
+
+module.exports.getPermitCheck = (username, permitToCheck, callback) => {
+
+    // Query
+    let query = mysql.format(
+        'select group_name from accounts where username = ?',
+        [username]
+        )
+
+    // Querying
+    db.query(query, (err,result)=>{
+        //Error
+        if (err) {
+            callback(err.sqlMessage, null);
+        } 
+
+        //No user group found
+        if (result.length === 0) {
+            callback(null, false)
+        }
+        
+        let user = result[0]
+        let user_groups = user.group_name
+
+        //User group found
+        if (user_groups.includes(permitToCheck)) {
+            callback(null, true)
+        }
+
+        else if(!user_groups.includes(permitToCheck)) {
             callback(null, false)
         }
 
@@ -247,12 +282,30 @@ module.exports.updateAllUsers = (username, password, email, active_status, group
     })
 }
 
-module.exports.updateTaskState_LeftRightBTN = (Task_name, TaskStateToSet, callback) => {
+module.exports.updateTaskState_LeftRightBTN = (Task_name, TaskStateToSet, Task_notes_updated, callback) => {
     
     // Query
     let query = mysql.format(
-       'UPDATE task SET Task_state=? WHERE Task_name=?',
-       [TaskStateToSet, Task_name]
+       'UPDATE task SET Task_state=?, Task_notes=? WHERE Task_name=?',
+       [TaskStateToSet, Task_notes_updated, Task_name]
+   )
+
+   // Querying
+   db.query(query, (err,result)=>{
+       if (err) {
+           callback(err.sqlMessage, false);
+       } else {
+           callback(null, true)
+       }
+   })  
+}
+
+module.exports.updateAppRnumber = (App_Rnumber, TaskAppAcronym, callback) => {
+    
+    // Query
+    let query = mysql.format(
+       'UPDATE application SET App_Rnumber=? WHERE App_Acronym=?',
+       [App_Rnumber, TaskAppAcronym]
    )
 
    // Querying

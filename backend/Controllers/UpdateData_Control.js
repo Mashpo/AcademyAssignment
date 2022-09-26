@@ -53,9 +53,12 @@ async function updateAllUsers (req, res) {
 function updateTaskState_LeftBTN (req, res) {
 
     //Unpack Data
+    let Username = req.body.Username
     let Task_name = req.body.Task_name
     let Task_state = req.body.Task_state;
+    let Task_notes_old = req.body.Task_notes
     var TaskStateToSet = ""
+    
 
     if(Task_state == "Doing"){
         TaskStateToSet = "ToDo"
@@ -64,7 +67,10 @@ function updateTaskState_LeftBTN (req, res) {
         TaskStateToSet = "Doing"
     }
 
-    user.updateTaskState_LeftRightBTN(Task_name, TaskStateToSet, (err, results)=>{
+    let tempDate = new Date()
+    let Task_notes_updated = '- Shifted from '+Task_state+' state to '+TaskStateToSet+' state by '+Username+`\n`+"       Time Stamp: "+tempDate+'\n\n'+Task_notes_old
+
+    user.updateTaskState_LeftRightBTN(Task_name, TaskStateToSet, Task_notes_updated, (err, results)=>{
         res.send({errMsg:err, success: results})
     })
 
@@ -73,8 +79,10 @@ function updateTaskState_LeftBTN (req, res) {
 function updateTaskState_RightBTN (req, res) {
 
     //Unpack Data
+    let Username = req.body.Username
     let Task_name = req.body.Task_name
     let Task_state = req.body.Task_state;
+    let Task_notes_old = req.body.Task_notes
     var TaskStateToSet = ""
 
     if(Task_state == "Open"){
@@ -90,7 +98,10 @@ function updateTaskState_RightBTN (req, res) {
         TaskStateToSet = "Close"
     }
 
-    user.updateTaskState_LeftRightBTN(Task_name, TaskStateToSet, (err, results)=>{
+    let tempDate = new Date()
+    let Task_notes_updated = '- Shifted from '+Task_state+' state to '+TaskStateToSet+' state by '+Username+`\n`+"       Time Stamp: "+tempDate+'\n\n'+Task_notes_old
+
+    user.updateTaskState_LeftRightBTN(Task_name, TaskStateToSet, Task_notes_updated, (err, results)=>{
         res.send({errMsg:err, success: results})
     })
 

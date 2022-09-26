@@ -7,6 +7,7 @@ var LogInOutControl = require("../Controllers/Log_InOut_Control")
 var RetrieveDataContorl = require("../Controllers/RetrieveData_Control")
 var UpdateDataControl = require("../Controllers/UpdateData_Control")
 var InsertData_Control = require("../Controllers/InsertData_Control")
+var CheckGroup_Control = require("../Controllers/CheckGroup_Control")
 
 // const cors = require("cors");
 const { application } = require("express");
@@ -40,6 +41,7 @@ router.post("/getAllG", RetrieveDataContorl.getAllG)
 router.post("/getAllKBApp", RetrieveDataContorl.getAllKBApp)
 router.post("/getAllKBPlan", RetrieveDataContorl.getAllKBPlan)
 router.post("/getAllKBTask", RetrieveDataContorl.getAllKBTask)
+router.post("/getPermitCheck", CheckGroup_Control.getPermitCheck)
 
 //Update on SQL
 router.post("/updateOwnEmail", UpdateDataControl.updateOwnEmail)

@@ -3,8 +3,11 @@ import React, { useState, useEffect } from 'react'
 
 function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
-    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN){
+    , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
+    , ActiveTaskStatePermit, ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN){
 
+    const token = JSON.parse(sessionStorage.getItem('token')).token
+    
     function FormatDate(date) { /* e.g. 20 Sept 2022*/
         let f_date = new Date(date)
         return f_date.toLocaleDateString("en-GB", {day: 'numeric', month: 'short' /*or long*/, year: 'numeric'})
@@ -39,6 +42,45 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
      const togglePopup_EST = () => {
         setIsOpen_EditSelectedTask(!isOpen_EditSelectedTask);
     }
+
+    // Shift Task button
+        const shiftTask_Rightbutton = async (taskName, fromState, existing_taskNotes) => {
+            
+            let toState = ""
+            let tempDate = ""
+
+            if(fromState == "Open"){
+                toState = "ToDo"
+            }
+            else if(fromState == "ToDo"){
+                toState = "Doing"
+            }
+            else if(fromState == "Doing"){
+                toState = "Done"
+            }
+            else if(fromState == "Done"){
+                toState = "Close"
+            }
+
+            // Crafting task note and fielding them nicely
+            let new_taskNote = '- '+taskName+' was shifted from '+fromState+' state to '+toState+' state  by '+token.username+`\n`+"       Time Stamp: "+tempDate+'\n\n'+existing_taskNotes            
+            // let fieldsData = [taskName, undefined, new_taskNote, undefined, undefined, undefined, toState, undefined, username, undefined]
+            // // Packing the data
+            // let taskData = PackTaskData(fieldsData)
+            // // Update backend and render frontend
+            // if (UpdateTask(taskData, 2)){
+            // }
+    }
+
+
+
+
+
+
+    //================ OnClick Selected Task Description (OSTD) Popup display ================
+    const togglePopup_OSTD = () => {
+        setIsOpen_OSTD(!isOpen_OSTD);
+    }
    
     return(
         <>
@@ -64,12 +106,14 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                     <p style={{fontSize: "small"}}>
                         Description: 
                         <br/>
+                        {/* <span onClick={togglePopup_OSTD()}> */}
                         <textarea 
                             rows="3" 
-                            style={{width:'96%', resize:'none', marginTop:"5px", marginLeft:"5px", padding:"10px"}} 
+                            style={{width:'96%', resize:'vertical', marginTop:"5px", marginLeft:"5px", padding:"10px"}} 
                             disabled 
                             defaultValue={row.Task_description? row.Task_description:"-"}
                         />
+                        {/* </span> */}
                     </p>
 
                     {/*============ task hover over info ============*/}
@@ -97,6 +141,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                         }}
                         
                         onClick={()=>{
+                            // shiftTask_Rightbutton(row.Task_name, row.Task_state, row.Task_notes)
                             setActiveSelectedTask_RightBTN(row.Task_name)
                             setSelectedTaskData_RightBTN(row)
                         }}
@@ -172,7 +217,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                         
                         onClick={()=>{
                             setActiveAuditTrail(row.Task_name)
-                            setSelectedTaskData_AT(row.Task_name)
+                            setSelectedTaskData_AT(row)
                             //Audit trail stuff to display
                             togglePopup_AT()
                         }}

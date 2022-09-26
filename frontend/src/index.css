@@ -180,7 +180,7 @@ button:hover {
 .col-5Doing {width: 20%; height: 100%; position: absolute; top: 0; left: 40%;}
 .col-5Done {width: 20%; height: 100%; position: absolute; top: 0; left: 60%;}
 .col-5Close {width: 20%; height: 100%; position: absolute; top: 0; left: 80%;}
-.col-6h {width: 100%; min-height:450px; position: relative;}
+.col-6h {width: 100%; min-height:475px; position: relative; overflow: auto; resize:vertical}
 
 
 /* sample pre-set % range */
@@ -357,7 +357,7 @@ button:hover {
   z-index: 1;
   border:2px solid black;
   /* shifting hover display position */
-  bottom: -37%;
+  bottom: -95px;
   left: 45%;
   margin-left: -60px;
   

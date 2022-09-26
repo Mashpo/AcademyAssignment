@@ -3,10 +3,21 @@ var user = require("../Models/accounts")
 /* */
 function CheckGroup (username, callback) {
    
-    user.getCurrentGroup(username, (err, check_res)=>{
+    user.getCurrentGroup_Admin(username, (err, check_res)=>{
         callback(null, check_res)
     })
    
 }
 
-module.exports = {CheckGroup}
+function getPermitCheck (req, res) {
+
+    let username = req.body.username
+    let permitToCheck = req.body.permitToCheck
+   
+    user.getPermitCheck(username, permitToCheck, (err, check_res)=>{
+        res.send({errMsg: err, PermitBoolean: check_res})
+    })
+   
+}
+
+module.exports = {CheckGroup, getPermitCheck}

@@ -61,9 +61,7 @@ async function SaveCreatePlan(PlanMVPName,PlanStartDate,PlanEndDate,PlanAppAcron
     }
 }
 
-async function SaveCreateTask(TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate,callback){
-
-    console.log(TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate)
+async function SaveCreateTask(App_Rnumber, TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan,TaskAppAcronym,TaskState,TaskCreator,TaskOwner,TaskCreateDate,callback){
 
     let validity = 1
 
@@ -81,7 +79,7 @@ async function SaveCreateTask(TaskName,TaskDescription,TaskNotes,TaskID,TaskPlan
             'Accept': 'application/json'
             },
             // POST content
-            body: JSON.stringify({TaskName:TaskName,TaskDescription:TaskDescription,TaskNotes:TaskNotes,TaskID:TaskID,TaskPlan:TaskPlan,TaskAppAcronym:TaskAppAcronym,TaskState:TaskState,TaskCreator:TaskCreator,TaskOwner:TaskOwner,TaskCreateDate:TaskCreateDate})
+            body: JSON.stringify({App_Rnumber:App_Rnumber,TaskName:TaskName,TaskDescription:TaskDescription,TaskNotes:TaskNotes,TaskID:TaskID,TaskPlan:TaskPlan,TaskAppAcronym:TaskAppAcronym,TaskState:TaskState,TaskCreator:TaskCreator,TaskOwner:TaskOwner,TaskCreateDate:TaskCreateDate})
         })
         // Server returns response from the credentials
             //.send sends the object as a string so after recieving the data, .json makes it back into an object
