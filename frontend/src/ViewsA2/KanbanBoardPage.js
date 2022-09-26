@@ -190,7 +190,7 @@ function KanbanBoardPage(props){
     const [PermitShiftTaskFromDone, setPermitShiftTaskFromDone] = useState()
 
     const PermitCheck = async (permitToCheck)=>{
-        fetch('http://localhost:8080/getPermitCheck',{
+        let res = await fetch('http://localhost:8080/getPermitCheck',{
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
@@ -198,21 +198,22 @@ function KanbanBoardPage(props){
             },
             // POST content
             body: JSON.stringify({username: token.username, permitToCheck: permitToCheck})
-        })
+        });
+
         // Server returns response from the credentials
-        .then(async (res) => await res.json()) //.send sends the object as a string so after recieving the data, .json makes it back into an object
-        .then((res_json)=>{
+        let res_json = await res.json();
+         //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        
             if(res_json.errMsg!==null){
-                return res_json.errMsg
+                console.log(res_json.errMsg)
             }
+            // console.log(res_json.PermitBoolean)
             return res_json.PermitBoolean
-        })
+        
     }
 
     useEffect(()=>{
-        
         const settingPermitBoolean = async()=>{
-            console.log(await PermitCheck('P_Lead'))
             setPermitCreateApp(await PermitCheck('P_Lead'))
             setPermitCreatePlan(await PermitCheck('P_Manager'))
             if(ActiveAppData){
@@ -223,13 +224,9 @@ function KanbanBoardPage(props){
                 setPermitShiftTaskFromDone(await PermitCheck(ActiveAppData.App_permit_Done))
             }
         }
-        
         settingPermitBoolean()
-
-        // console.log(PermitCreateApp)
     },[ActiveAppData])
     
-
 
     //================ Create App Popup display ================
     const [ActiveCreateApp, setActiveCreateApp] = useState(false)
@@ -382,6 +379,31 @@ function KanbanBoardPage(props){
             setSelectedTaskData_RightBTN()
             setTaskTableRefreshAfterBTN(true)
         }
+        if((selectedTaskData_RightBTN) && (selectedTaskData_RightBTN.Task_state == "Doing")){
+            console.log("???")
+            fetch('http://localhost:8080/sendMail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                // POST content
+                body: JSON.stringify({Username: token.username, Task_name: selectedTaskData_RightBTN.Task_name})
+                })
+                .then(async (res) => {
+                // Successful updating user
+                if (res.status === 200) {
+                    toast.success("Email sent to lead on done task", {hideProgressBar:true})
+                    }
+                // Unsuccessful updating user, throw error
+                else {throw Error}
+                })
+                .then(()=>true)
+                // Error handling
+                .catch(()=>{
+                toast.error("Error sending email to lead", {hideProgressBar:true})
+                })
+        }
     },[selectedTaskData_RightBTN])
 
     //~~~~~~~~~~~~~~~~ App Set State ~~~~~~~~~~~~~~~~
@@ -446,7 +468,7 @@ function KanbanBoardPage(props){
             <div className='col-6'> 
                 <h2><u>Apps</u></h2>
                 <p>
-                    <button 
+                    {PermitCreateApp && (<button 
                         style={{
                             border: "1.5px solid darkslategray"
                             ,borderRadius: "3px"
@@ -458,7 +480,7 @@ function KanbanBoardPage(props){
                         onMouseLeave={()=>{setHoverCreateApp(false)}}
                     >
                         Create App
-                    </button>
+                    </button>)}
                 </p>
                 <p>
                     <b>Applications:&nbsp;</b>
@@ -478,7 +500,7 @@ function KanbanBoardPage(props){
                             </div>
                             <div className='col-5'>
                                 <p>
-                                    {ActiveApp && (<button 
+                                    {ActiveApp && PermitCreateApp && (<button 
                                         style={{
                                             border: "1.5px solid darkslategray"
                                             ,borderRadius: "3px"
@@ -530,7 +552,7 @@ function KanbanBoardPage(props){
                                 <p  className='col-9'style={{fontSize: "small"}}>&nbsp;End date: {((ActivePlanData) && (ActivePlanData.Plan_endDate !== null))? FormatDate(ActivePlanData.Plan_endDate):"-"}</p>
                             </div>
                             <div className='col-5'>
-                                {ActiveApp && (<button 
+                                {ActiveApp && PermitCreatePlan && (<button 
                                     style={{
                                         marginInline: "5px"
                                         ,marginBottom: "10px"
@@ -551,7 +573,7 @@ function KanbanBoardPage(props){
                                 {/* <ButtonTemplate name={"Create Plan"} isOpen={isOpen_CreatePlan} setIsOpen={setIsOpen_CreatePlan}/> */}
                             
                             </div>
-                            {ActivePlan && (<div className='col-10'>
+                            {ActivePlan && PermitCreatePlan && (<div className='col-10'>
                                 <button 
                                     style={{
                                         marginInline: "5px"
@@ -584,7 +606,7 @@ function KanbanBoardPage(props){
                         <div className='col-5Open' style={{borderRight: '2px solid gray', padding: "2px", minHeight:"475px"}}> 
                             <h3>
                                 Open
-                                {ActiveApp && (<button 
+                                {ActiveApp && PermitCreateTask && (<button 
                                     style={{
                                         float:"right"
                                         ,marginInline: "5px"
@@ -610,7 +632,8 @@ function KanbanBoardPage(props){
                                 {Open_data? TaskDisplayTemplate(Open_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , "ActiveAppData.App_permit_Open", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN
+                                    , PermitShiftTaskFromOpen, PermitShiftTaskFromToDo, PermitShiftTaskFromDoing, PermitShiftTaskFromDone):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Open-</p>
                             </div>
                         </div>
@@ -628,7 +651,8 @@ function KanbanBoardPage(props){
                                 {ToDo_data? TaskDisplayTemplate(ToDo_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , "ActiveAppData.App_permit_toDoList", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN
+                                    , PermitShiftTaskFromOpen, PermitShiftTaskFromToDo, PermitShiftTaskFromDoing, PermitShiftTaskFromDone):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of To Do-</p>
                             </div>
                         </div>
@@ -647,7 +671,8 @@ function KanbanBoardPage(props){
                                 {Doing_data? TaskDisplayTemplate(Doing_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , "ActiveAppData.App_permit_Doing", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN
+                                    , PermitShiftTaskFromOpen, PermitShiftTaskFromToDo, PermitShiftTaskFromDoing, PermitShiftTaskFromDone):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Doing-</p>
                             </div>
                         </div>
@@ -666,7 +691,8 @@ function KanbanBoardPage(props){
                                 {Done_data? TaskDisplayTemplate(Done_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , "ActiveAppData.App_permit_Done", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN
+                                    , PermitShiftTaskFromOpen, PermitShiftTaskFromToDo, PermitShiftTaskFromDoing, PermitShiftTaskFromDone):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Done-</p>
                             </div>
                         </div>
@@ -685,7 +711,8 @@ function KanbanBoardPage(props){
                                 {Close_data? TaskDisplayTemplate(Close_data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
                                     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
                                     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-                                    , "Close State Don't need check for permit", ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN):NoTaskDataTemp()}
+                                    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN
+                                    , PermitShiftTaskFromOpen, PermitShiftTaskFromToDo, PermitShiftTaskFromDoing, PermitShiftTaskFromDone):NoTaskDataTemp()}
                                 <p style={{fontSize: "small", textAlign:"center", marginTop:"200px"}}>-End of Close-</p>
                             </div>
                         </div>
@@ -726,11 +753,11 @@ function KanbanBoardPage(props){
                             <div className='col-7'>*End Date: <input type="date" id="enddate" name="enddate" min={UnpackDateForInput(AppStartDate)} onChange={e => setAppEndDate(e.target.value)}/></div>
                             <br/>
                             <div className='col-6'>
+                                <div className='col-11' style={{marginTop:"15px"}}>*Create:</div>
                                 <div className='col-11' style={{marginTop:"15px"}}>*Open:</div>
                                 <div className='col-11' style={{marginTop:"15px"}}>*To Do:</div>
                                 <div className='col-11' style={{marginTop:"15px"}}>*Doing:</div>
                                 <div className='col-11' style={{marginTop:"15px"}}>*Done:</div>
-                                <div className='col-11' style={{marginTop:"15px"}}>*Close:</div>
                             </div>
                             <div className='col-6' style={{marginTop:"1px"}}>
                                 <div className='col-11'>

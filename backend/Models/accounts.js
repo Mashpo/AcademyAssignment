@@ -282,12 +282,12 @@ module.exports.updateAllUsers = (username, password, email, active_status, group
     })
 }
 
-module.exports.updateTaskState_LeftRightBTN = (Task_name, TaskStateToSet, Task_notes_updated, callback) => {
+module.exports.updateTaskState_LeftRightBTN = (Username, Task_name, TaskStateToSet, Task_notes_updated, callback) => {
     
     // Query
     let query = mysql.format(
-       'UPDATE task SET Task_state=?, Task_notes=? WHERE Task_name=?',
-       [TaskStateToSet, Task_notes_updated, Task_name]
+       'UPDATE task SET Task_owner=?, Task_state=?, Task_notes=? WHERE Task_name=?',
+       [Username, TaskStateToSet, Task_notes_updated, Task_name]
    )
 
    // Querying

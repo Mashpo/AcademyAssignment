@@ -70,7 +70,7 @@ function updateTaskState_LeftBTN (req, res) {
     let tempDate = new Date()
     let Task_notes_updated = '- Shifted from '+Task_state+' state to '+TaskStateToSet+' state by '+Username+`\n`+"       Time Stamp: "+tempDate+'\n\n'+Task_notes_old
 
-    user.updateTaskState_LeftRightBTN(Task_name, TaskStateToSet, Task_notes_updated, (err, results)=>{
+    user.updateTaskState_LeftRightBTN(Username, Task_name, TaskStateToSet, Task_notes_updated, (err, results)=>{
         res.send({errMsg:err, success: results})
     })
 
@@ -101,7 +101,7 @@ function updateTaskState_RightBTN (req, res) {
     let tempDate = new Date()
     let Task_notes_updated = '- Shifted from '+Task_state+' state to '+TaskStateToSet+' state by '+Username+`\n`+"       Time Stamp: "+tempDate+'\n\n'+Task_notes_old
 
-    user.updateTaskState_LeftRightBTN(Task_name, TaskStateToSet, Task_notes_updated, (err, results)=>{
+    user.updateTaskState_LeftRightBTN(Username, Task_name, TaskStateToSet, Task_notes_updated, (err, results)=>{
         res.send({errMsg:err, success: results})
     })
 

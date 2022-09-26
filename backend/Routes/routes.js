@@ -8,6 +8,7 @@ var RetrieveDataContorl = require("../Controllers/RetrieveData_Control")
 var UpdateDataControl = require("../Controllers/UpdateData_Control")
 var InsertData_Control = require("../Controllers/InsertData_Control")
 var CheckGroup_Control = require("../Controllers/CheckGroup_Control")
+var Mail_Control = require("../Controllers/Mail_Control")
 
 // const cors = require("cors");
 const { application } = require("express");
@@ -56,6 +57,10 @@ router.post("/insertCreatedUser", InsertData_Control.insertCreatedUser)
 router.post("/CreateKBApp", InsertData_Control.CreateKBApp)
 router.post("/CreateKBPlan", InsertData_Control.CreateKBPlan)
 router.post("/CreateKBTask", InsertData_Control.CreateKBTask)
+
+//Mail with nodemailer
+router.post("/sendMail", Mail_Control)
+
 
 
 module.exports = router;

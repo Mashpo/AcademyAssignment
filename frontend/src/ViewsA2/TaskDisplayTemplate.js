@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react'
 function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setSelectedTaskData_AT, ActiveAuditTrail, setActiveAuditTrail
     , setIsOpen_EditSelectedTask, isOpen_EditSelectedTask, setSelectedTaskData_EST, ActiveEditSelectedTask, setActiveEditSelectedTask
     , ActiveOSTD, setActiveOSTD, setSelectedTaskData_OSTD, isOpen_OSTD, setIsOpen_OSTD
-    , ActiveTaskStatePermit, ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN){
+    , ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN, ActiveSelectedTask_RightBTN, setActiveSelectedTask_RightBTN, setSelectedTaskData_LeftBTN, setSelectedTaskData_RightBTN
+    , PermitShiftTaskFromOpen, PermitShiftTaskFromToDo, PermitShiftTaskFromDoing, PermitShiftTaskFromDone){
 
     const token = JSON.parse(sessionStorage.getItem('token')).token
     
@@ -12,6 +13,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
         let f_date = new Date(date)
         return f_date.toLocaleDateString("en-GB", {day: 'numeric', month: 'short' /*or long*/, year: 'numeric'})
     }
+
 
     //================ Task Display ================
     const [IsHover, setIsHover] = useState(false)
@@ -129,7 +131,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
 
                     <div className='col-6'>
                     {/*============ Right Button ============*/}
-                    {(row.Task_state!="Close") && (<button 
+                    {(((row.Task_state==="Open")&&PermitShiftTaskFromOpen) || ((row.Task_state==="ToDo")&&PermitShiftTaskFromToDo) || ((row.Task_state==="Doing")&&PermitShiftTaskFromDoing) || ((row.Task_state==="Done")&&PermitShiftTaskFromDone)) && (row.Task_state!="Close") && (<button 
                         style={{
                             float:"right"
                             ,marginInline: "5px"
@@ -153,7 +155,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                     </button>)}
 
                     {/*============ Left Button ============*/}
-                    {((row.Task_state=="Doing") || (row.Task_state=="Done")) && (<button 
+                    {(((row.Task_state==="Doing")&&PermitShiftTaskFromDoing) || ((row.Task_state==="Done")&&PermitShiftTaskFromDone)) && (<button 
                         style={{
                             float:"right"
                             ,marginInline: "5px"
