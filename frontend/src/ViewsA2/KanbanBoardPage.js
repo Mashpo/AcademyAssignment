@@ -331,9 +331,18 @@ function KanbanBoardPage(props){
     const [isOpen_AuditTrail, setIsOpen_AuditTrail] = useState(false);
     const togglePopup_AuditTrail = () => {
         setActiveAuditTrail();
+        setAddNotesAuditTrailBTN(false)
         setIsOpen_AuditTrail(!isOpen_AuditTrail);
     }
 
+    const [AddNotesAuditTrailBTN, setAddNotesAuditTrailBTN] = useState(false);
+    const [AuditTrailTaskNotes_old, setAuditTrailTaskNotes_old] = useState();
+    const [AuditTrailTaskNotes_toAdd, setAuditTrailTaskNotes_toAdd] = useState();
+    useEffect(()=>{
+        if(selectedTaskData_AT){
+            setAuditTrailTaskNotes_old(selectedTaskData_AT.Task_notes)
+        }
+    },[selectedTaskData_AT])
     //================ Task Left Button ================
     const [ActiveSelectedTask_LeftBTN, setActiveSelectedTask_LeftBTN] = useState()
     const [selectedTaskData_LeftBTN, setSelectedTaskData_LeftBTN] = useState();
@@ -420,6 +429,7 @@ function KanbanBoardPage(props){
     const [AppPermit_Doing, setAppPermit_Doing] = useState();
     const [AppPermit_Done, setAppPermit_Done] = useState();
 
+        //App Editing setState
     const [AppDescription_Edit, setAppDescription_Edit] = useState();
     const [AppPermit_Create_Edit, setAppPermit_Create_Edit] = useState();
     const [AppPermit_Open_Edit, setAppPermit_Open_Edit] = useState();
@@ -460,6 +470,16 @@ function KanbanBoardPage(props){
         }
     },[ActiveAppData])
 
+        //Plan Editing setState
+    const [PlanStartDate_Edit, setPlanStartDate_Edit] = useState();
+    const [PlanEndDate_Edit, setPlanEndDate_Edit] = useState();
+    useEffect(()=>{
+        if(ActivePlanData){
+            setPlanStartDate_Edit(UnpackDateForInput(ActivePlanData.Plan_startDate))
+            setPlanEndDate_Edit(UnpackDateForInput(ActivePlanData.Plan_endDate))
+        }
+    },[ActivePlanData])
+    
     //~~~~~~~~~~~~~~~~ Task Set State ~~~~~~~~~~~~~~~~
     const [TaskName, setTaskName] = useState();
     const [TaskDescription, setTaskDescription] = useState();
@@ -491,14 +511,16 @@ function KanbanBoardPage(props){
         setTaskCreateDate(tempDate.toISOString().split('T')[0])
     },[(isOpen_CreateTask && TaskAppAcronym)])
 
+        //Task Editing setState
     const [TaskPlan_Edit, setTaskPlan_Edit] = useState();
     const [TaskDescription_Edit, setTaskDescription_Edit] = useState();
     useEffect(()=>{
         if(selectedTaskData_EST){
+            setTaskDescription_Edit(selectedTaskData_EST.Task_description)
+
             if(selectedTaskData_EST.Task_plan){
                 setTaskPlan_Edit([{Plan_MVPName:selectedTaskData_EST.Task_plan}])
             }
-            setTaskDescription_Edit(selectedTaskData_EST.Task_description)
         }
     },[selectedTaskData_EST])
 
@@ -1080,8 +1102,31 @@ function KanbanBoardPage(props){
             {/* ================ Edit Plan Popup display ================ */}
             {isOpen_EditPlan && <Popup
                 content={<>
-                <b>Editing Plan</b>
-                <p><button onClick={()=>{console.log("test Edit plan", ActivePlan)}}>Save</button></p>
+                <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveEditPlan(ActivePlan,PlanStartDate_Edit,PlanEndDate_Edit
+                        ,(update_status)=>{
+                            if(update_status.success){
+                                toast.success("Update Successful", {hideProgressBar:true})
+                                setRetriveUpdatedAllPlanData(true)
+                                togglePopup_EditPlan()
+                            }
+                            else{
+                                console.log(update_status.errMsg)
+                            }
+                        }
+                    )}}>
+                        {/*Create Plan Input Field*/}
+                        <p><u><b>Creating Plan for <mark style={{backgroundColor:"lightblue"}}>{ActiveApp}</mark></b></u></p>
+                        <div>Plan: <b><mark style={{backgroundColor:"lightblue"}}>{ActivePlan}</mark></b></div>
+                        <br/>
+                        <div className='col-7'>*Start Date: <input type="date" id="startdate" name="startdate" value={PlanStartDate_Edit} min={UnpackDateForInput(SelectedAppStartDate)} max={(PlanEndDate_Edit<SelectedAppEndDate)&&PlanEndDate_Edit?  UnpackDateForInput(PlanEndDate_Edit):UnpackDateForInput(SelectedAppEndDate)} onChange={e => setPlanStartDate_Edit(e.target.value)}/></div>
+                        <div className='col-7'>*End Date: <input type="date" id="enddate" name="enddate" value={PlanEndDate_Edit} min={(SelectedAppStartDate<PlanStartDate_Edit)&&PlanStartDate_Edit? UnpackDateForInput(PlanStartDate_Edit):UnpackDateForInput(SelectedAppStartDate)} max={UnpackDateForInput(SelectedAppEndDate)} onChange={e => setPlanEndDate_Edit(e.target.value)}/></div>
+                        <br/><br/>
+                        <p style={{fontSize:"small"}}>
+                            *Fields cannot be empty
+                            {/*Buttons*/}
+                            <button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button>
+                        </p>
+                    </form>  
                 </>}
                 handleClose={togglePopup_EditPlan}
             />}
@@ -1186,16 +1231,15 @@ function KanbanBoardPage(props){
                                         showCheckbox
                                         selectionLimit={1}
                                     />
-                                    {console.log(TaskPlan_Edit)}
                                 </div>)}
                             </div>
-                            <textarea style={{ resize: 'none', overflow:'auto', marginTop:"15px"}} id='description' rows="4" cols="100" className="form-control" onChange={e => setTaskDescription_Edit(e.target.value)}>{TaskDescription_Edit}</textarea>
+                            <textarea style={{ resize: 'none', overflow:'auto', marginTop:"15px"}} id='description' rows="4" cols="100" className="form-control" onChange={e => setTaskDescription_Edit(e.target.value)}>{selectedTaskData_EST.Task_description}</textarea>
                             <br/><br/>
                             <p style={{fontSize:"small"}}>
                                 {/*Buttons*/}
                                 <button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button>
                             </p>
-                        </form>           
+                        </form>    
                 </>}
                 handleClose={togglePopup_EditSelectedTask}
             />}
@@ -1203,16 +1247,41 @@ function KanbanBoardPage(props){
             {/* ================ Audit Trail Popup display ================ */}
             {isOpen_AuditTrail && <Popup
                 content={<>
-                <b>Audit Trail: {selectedTaskData_AT.Task_name}</b>
-                {/* <p style={{whiteSpace:'pre-wrap'}}>{selectedTaskData_AT.Task_notes}</p> */}
-                <textarea 
-                    rows="3" 
-                    style={{width:'96%', height:"450px", resize:'vertical', marginTop:"5px", marginLeft:"5px", padding:"10px"}} 
-                    disabled 
-                    defaultValue={selectedTaskData_AT.Task_notes}
-                />
-                <br/>
-                <button onClick={()=>{console.log("test")}}>Edit</button>
+                    <b>Audit Trail: {selectedTaskData_AT.Task_name}</b>
+                    {/* <p style={{whiteSpace:'pre-wrap'}}>{selectedTaskData_AT.Task_notes}</p> */}
+                    <textarea 
+                        rows="3" 
+                        style={{width:'96%', height:"450px", resize:'vertical', marginTop:"5px", marginLeft:"5px", padding:"10px"}} 
+                        disabled 
+                        // value={selectedTaskData_AT.Task_notes}
+                        value={selectArrayRow(ActiveAppAllTaskData, 'Task_name', selectedTaskData_AT.Task_name)[0].Task_notes}
+                    />
+                    <br/>
+
+                    <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveAddTaskNotes(selectedTaskData_AT.Task_name,AuditTrailTaskNotes_old,AuditTrailTaskNotes_toAdd 
+                                ,(update_status)=>{
+                                    if(update_status.success){
+                                        toast.success("Update Successful", {hideProgressBar:true})
+                                        setRetriveUpdatedAllTaskData(true)
+                                        // One line below is re-used to update App_Rnumber
+                                        setRetriveUpdatedAllAppData(true)
+                                        setAddNotesAuditTrailBTN(false)
+                                    }
+                                    else{
+                                        console.log(update_status.errMsg)
+                                    }
+                                }
+                    )}}>
+                        
+                        <button style={{float:"right", marginRight: "75px", marginTop: "25px"}} onClick={(e)=>{e.preventDefault(); setAddNotesAuditTrailBTN(true)}}>Add Notes</button>
+
+                        {AddNotesAuditTrailBTN && (<>
+                            <br/> <br/>
+                            <button type="submit" style={{float:"right", marginRight: "-65px", marginTop: "25px"}} href="#">Save</button>    
+                            <textarea style={{ resize: 'vertical', overflow:'auto', marginTop:"-20px"}} id='description' rows="4" cols="125" className="form-control" onChange={e => setAuditTrailTaskNotes_toAdd(e.target.value)}/>
+                        </>)}
+                        
+                    </form>
                 </>}
                 handleClose={togglePopup_AuditTrail}
             />}

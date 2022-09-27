@@ -113,7 +113,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                             rows="3" 
                             style={{width:'96%', resize:'vertical', marginTop:"5px", marginLeft:"5px", padding:"10px"}} 
                             disabled 
-                            defaultValue={row.Task_description? row.Task_description:"-"}
+                            value={row.Task_description? row.Task_description:"-"}
                         />
                         {/* </span> */}
                     </p>

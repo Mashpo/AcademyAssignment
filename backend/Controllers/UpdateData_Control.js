@@ -142,10 +142,39 @@ function EditKBTask (req, res) {
         TaskPlan = TaskPlan.Plan_MVPName
     }
     
-    user.EditKBApp(TaskName,TaskDescription,TaskPlan, (err, results)=>{
+    user.EditKBTask(TaskName,TaskDescription,TaskPlan, (err, results)=>{
         res.send({errMsg:err, success: results})
     })
 
 }
 
-module.exports = {updateOwnEmail, updateOwnPassword, updateAllUsers, updateTaskState_LeftBTN, updateTaskState_RightBTN, EditKBApp, EditKBTask}
+function AddKBTaskNotes (req, res) {
+
+    //Unpack Data
+    let TaskName = req.body.TaskName
+
+    let AuditTrailTaskNotes_old = req.body.AuditTrailTaskNotes_old
+    let AuditTrailTaskNotes_toAdd = req.body.AuditTrailTaskNotes_toAdd
+    let tempDate = new Date()
+    let AuditTrailTaskNotes_updated = AuditTrailTaskNotes_toAdd+`\n`+"       Time Stamp: "+tempDate+`\n\n`+AuditTrailTaskNotes_old
+    
+    user.AddKBTaskNotes(TaskName,AuditTrailTaskNotes_updated, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+function EditKBPlan (req, res) {
+
+    //Unpack Data
+    let PlanMVPName = req.body.PlanMVPName
+    let PlanStartDate = req.body.PlanStartDate
+    let PlanEndDate = req.body.PlanEndDate
+    
+    user.EditKBPlan(PlanMVPName,PlanStartDate,PlanEndDate, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+module.exports = {updateOwnEmail, updateOwnPassword, updateAllUsers, updateTaskState_LeftBTN, updateTaskState_RightBTN, EditKBApp, EditKBTask, AddKBTaskNotes, EditKBPlan}

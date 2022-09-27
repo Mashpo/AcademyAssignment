@@ -137,4 +137,54 @@ async function SaveEditTask(TaskName,TaskDescription,TaskPlan,callback){
         }) 
 
 }
-export default {SaveCreateApp, SaveCreatePlan, SaveCreateTask, SaveEditApp, SaveEditTask};
+
+async function SaveAddTaskNotes(TaskName,AuditTrailTaskNotes_old,AuditTrailTaskNotes_toAdd,callback){
+
+    await fetch('http://localhost:8080/AddKBTaskNotes',{
+         method: 'POST',
+         headers: {
+         'Content-Type': 'application/json',
+         'Accept': 'application/json'
+         },
+         // POST content
+         body: JSON.stringify({TaskName:TaskName,AuditTrailTaskNotes_old:AuditTrailTaskNotes_old,AuditTrailTaskNotes_toAdd:AuditTrailTaskNotes_toAdd})
+     })
+     // Server returns response from the credentials
+         //.send sends the object as a string so after recieving the data, .json makes it back into an object
+     .then(async (res) => { 
+         const update_status = await res.json()
+         callback(update_status)
+     }) 
+
+}
+
+async function SaveEditPlan(PlanMVPName,PlanStartDate,PlanEndDate, callback){
+
+    let validity = 1
+
+    if(!PlanStartDate || !PlanEndDate){
+        toast.warn("Empty Compulsory Fields", {hideProgressBar:true})
+        validity = 0
+    }
+
+    if (validity === 1){
+
+       await fetch('http://localhost:8080/EditKBPlan',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            },
+            // POST content
+            body: JSON.stringify({PlanMVPName:PlanMVPName,PlanStartDate:PlanStartDate,PlanEndDate:PlanEndDate})
+        })
+        // Server returns response from the credentials
+            //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        .then(async (res) => { 
+            const update_status = await res.json()
+            callback(update_status)
+        }) 
+    }
+}
+
+export default {SaveCreateApp, SaveCreatePlan, SaveCreateTask, SaveEditApp, SaveEditTask, SaveAddTaskNotes, SaveEditPlan};

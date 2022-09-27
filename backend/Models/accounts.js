@@ -358,12 +358,12 @@ module.exports.EditKBApp = (ActiveApp,AppDescription,AppStartDate,AppEndDate,App
     })
 }
 
-module.exports.EditKBApp = (TaskName,TaskDescription,TaskPlan, callback) => {
+module.exports.EditKBTask = (TaskName,TaskDescription,TaskPlan, callback) => {
     
     //String and variables if required
     var set_fields = []
     var set_vars = []
-    
+
     //Task_description
     if(TaskDescription){
         set_fields.push("Task_description = ?")
@@ -392,7 +392,42 @@ module.exports.EditKBApp = (TaskName,TaskDescription,TaskPlan, callback) => {
         "UPDATE nodelogin.task SET " + set_fields.toString() + " WHERE Task_name = ?",
         set_vars
     )
-console.log(query)
+
+    db.query(query, (err,result)=>{
+        if (err) {
+            callback(err.sqlMessage, false);
+        } else {
+            callback(null, true)
+        }
+        
+    })
+}
+
+module.exports.EditKBPlan = (PlanMVPName,PlanStartDate,PlanEndDate, callback) => {
+    
+    //String and variables if required
+    var set_fields = []
+    var set_vars = []
+
+    //Plan_startDate
+    if(PlanStartDate){
+        set_fields.push("Plan_startDate = ?")
+        set_vars.push(PlanStartDate)
+    }
+
+    //Plan_endDate
+    if(PlanEndDate){
+        set_fields.push("Plan_endDate = ?")
+        set_vars.push(PlanEndDate)
+    }
+
+    set_vars.push(PlanMVPName)
+
+    let query = mysql.format(
+        "UPDATE nodelogin.plan SET " + set_fields.toString() + " WHERE Plan_MVP_name = ?",
+        set_vars
+    )
+
     db.query(query, (err,result)=>{
         if (err) {
             callback(err.sqlMessage, false);
@@ -409,6 +444,24 @@ module.exports.updateTaskState_LeftRightBTN = (Username, Task_name, TaskStateToS
     let query = mysql.format(
        'UPDATE task SET Task_owner=?, Task_state=?, Task_notes=? WHERE Task_name=?',
        [Username, TaskStateToSet, Task_notes_updated, Task_name]
+   )
+
+   // Querying
+   db.query(query, (err,result)=>{
+       if (err) {
+           callback(err.sqlMessage, false);
+       } else {
+           callback(null, true)
+       }
+   })  
+}
+
+module.exports.AddKBTaskNotes = (TaskName,AuditTrailTaskNotes_updated, callback) => {
+    
+    // Query
+    let query = mysql.format(
+       'UPDATE task SET Task_notes=? WHERE Task_name=?',
+       [AuditTrailTaskNotes_updated, TaskName]
    )
 
    // Querying
