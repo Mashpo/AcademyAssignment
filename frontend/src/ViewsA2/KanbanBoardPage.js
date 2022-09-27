@@ -309,6 +309,9 @@ function KanbanBoardPage(props){
     const togglePopup_EditSelectedTask = () => {
         setActiveEditSelectedTask();
         setIsOpen_EditSelectedTask(!isOpen_EditSelectedTask);
+
+        setTaskPlan_Edit()
+        setTaskDescription_Edit()
     }
 
     //================ OnClick Selected Task Description (OSTD) ================
@@ -487,6 +490,18 @@ function KanbanBoardPage(props){
         setTaskOwner(token.username)
         setTaskCreateDate(tempDate.toISOString().split('T')[0])
     },[(isOpen_CreateTask && TaskAppAcronym)])
+
+    const [TaskPlan_Edit, setTaskPlan_Edit] = useState();
+    const [TaskDescription_Edit, setTaskDescription_Edit] = useState();
+    useEffect(()=>{
+        if(selectedTaskData_EST){
+            if(selectedTaskData_EST.Task_plan){
+                setTaskPlan_Edit([{Plan_MVPName:selectedTaskData_EST.Task_plan}])
+            }
+            setTaskDescription_Edit(selectedTaskData_EST.Task_description)
+        }
+    },[selectedTaskData_EST])
+
 
     return(
         <>
@@ -1134,9 +1149,53 @@ function KanbanBoardPage(props){
             {/* ================ Editing Selected Task Popup display ================ */}
             {isOpen_EditSelectedTask && <Popup
                 content={<>
-                <b>Editing Task: {selectedTaskData_EST}</b>
-                <p>{selectedTaskData_EST}</p>
-                <button onClick={()=>{console.log("test EST")}}>Test button</button>
+                <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveEditTask(selectedTaskData_EST.Task_name,TaskDescription_Edit,TaskPlan_Edit 
+                            ,(update_status)=>{
+                                if(update_status.success){
+                                    toast.success("Update Successful", {hideProgressBar:true})
+                                    setRetriveUpdatedAllTaskData(true)
+                                    // One line below is re-used to update App_Rnumber
+                                    setRetriveUpdatedAllAppData(true)
+                                    togglePopup_EditSelectedTask()
+                                }
+                                else{
+                                    console.log(update_status.errMsg)
+                                }
+                            }
+                        )}}>
+                            {/*Create Task Input Fields*/}
+                            <p><u><b>Creating Task for <mark style={{backgroundColor:"lightblue"}}>{ActiveApp}</mark></b></u></p>
+                            <div>Task: <b><mark style={{backgroundColor:"lightblue"}}>{selectedTaskData_EST.Task_name}</mark></b></div>
+                            <br/>
+                            <div className='col-6' style={{marginTop:"1px"}}>
+                                <div className='col-12' style={{marginTop:"5px"}}>Plan: {!PermitCreatePlan? selectedTaskData_EST.Task_plan:""}</div>
+                                {PermitCreatePlan && (<div className='col-11'>
+                                    {/* change group_name & ResultAllG to plan array from mySQL */}
+                                    <Multiselect
+                                        placeholder="Select Plan"
+                                        hidePlaceholder='true'
+                                        displayValue="Plan_MVPName" 
+                                        onRemove={(selection) => {
+                                            setTaskPlan_Edit(selection)
+                                        }}
+                                        onSelect={(selection) => {
+                                            setTaskPlan_Edit(selection)
+                                        }}
+                                        options={Plan_MVPName.map((item) => {return{Plan_MVPName:item}})}
+                                        selectedValues={TaskPlan_Edit}
+                                        showCheckbox
+                                        selectionLimit={1}
+                                    />
+                                    {console.log(TaskPlan_Edit)}
+                                </div>)}
+                            </div>
+                            <textarea style={{ resize: 'none', overflow:'auto', marginTop:"15px"}} id='description' rows="4" cols="100" className="form-control" onChange={e => setTaskDescription_Edit(e.target.value)}>{TaskDescription_Edit}</textarea>
+                            <br/><br/>
+                            <p style={{fontSize:"small"}}>
+                                {/*Buttons*/}
+                                <button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button>
+                            </p>
+                        </form>           
                 </>}
                 handleClose={togglePopup_EditSelectedTask}
             />}

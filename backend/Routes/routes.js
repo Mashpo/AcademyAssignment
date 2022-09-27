@@ -51,6 +51,7 @@ router.post("/updateAllUsers", UpdateDataControl.updateAllUsers)
 router.post("/updateTaskState_LeftBTN", UpdateDataControl.updateTaskState_LeftBTN)
 router.post("/updateTaskState_RightBTN", UpdateDataControl.updateTaskState_RightBTN)
 router.post("/EditKBApp", UpdateDataControl.EditKBApp)
+router.post("/EditKBTask", UpdateDataControl.EditKBTask)
 
 //Insert to SQL
 router.post("/insertG", InsertData_Control.insertG)

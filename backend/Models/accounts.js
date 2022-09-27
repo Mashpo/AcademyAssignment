@@ -348,8 +348,51 @@ module.exports.EditKBApp = (ActiveApp,AppDescription,AppStartDate,AppEndDate,App
         set_vars
     )
 
-    console.log(query)
+    db.query(query, (err,result)=>{
+        if (err) {
+            callback(err.sqlMessage, false);
+        } else {
+            callback(null, true)
+        }
+        
+    })
+}
 
+module.exports.EditKBApp = (TaskName,TaskDescription,TaskPlan, callback) => {
+    
+    //String and variables if required
+    var set_fields = []
+    var set_vars = []
+    
+    //Task_description
+    if(TaskDescription){
+        set_fields.push("Task_description = ?")
+        set_vars.push(TaskDescription)
+    }
+    if(!TaskDescription){
+        TaskDescription = null
+        set_fields.push("Task_description = ?")
+        set_vars.push(TaskDescription)
+    }
+
+    //Task_plan
+    if(TaskPlan){
+        set_fields.push("Task_plan = ?")
+        set_vars.push(TaskPlan)
+    }
+    if(!TaskPlan){
+        TaskPlan = null
+        set_fields.push("Task_plan = ?")
+        set_vars.push(TaskPlan)
+    }
+
+    set_vars.push(TaskName)
+
+    let query = mysql.format(
+        "UPDATE nodelogin.task SET " + set_fields.toString() + " WHERE Task_name = ?",
+        set_vars
+    )
+console.log(query)
     db.query(query, (err,result)=>{
         if (err) {
             callback(err.sqlMessage, false);

@@ -194,7 +194,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                         
                         onClick={()=>{
                             setActiveEditSelectedTask(row.Task_name)
-                            setSelectedTaskData_EST(row.Task_name)
+                            setSelectedTaskData_EST(row)
                             //Selected Task stuff to display
                             togglePopup_EST()
                         }}

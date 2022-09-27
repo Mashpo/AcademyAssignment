@@ -117,4 +117,24 @@ async function SaveEditApp(ActiveApp,AppDescription,AppStartDate,AppEndDate,AppP
         }) 
     }
 }
-export default {SaveCreateApp, SaveCreatePlan, SaveCreateTask, SaveEditApp};
+
+async function SaveEditTask(TaskName,TaskDescription,TaskPlan,callback){
+
+       await fetch('http://localhost:8080/EditKBTask',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            },
+            // POST content
+            body: JSON.stringify({TaskName:TaskName,TaskDescription:TaskDescription,TaskPlan:TaskPlan})
+        })
+        // Server returns response from the credentials
+            //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        .then(async (res) => { 
+            const update_status = await res.json()
+            callback(update_status)
+        }) 
+
+}
+export default {SaveCreateApp, SaveCreatePlan, SaveCreateTask, SaveEditApp, SaveEditTask};

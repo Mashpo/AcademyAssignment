@@ -109,8 +109,6 @@ function updateTaskState_RightBTN (req, res) {
 
 function EditKBApp (req, res) {
 
-    console.log(req.body)
-
     //Unpack Data
     let ActiveApp = req.body.ActiveApp
     let AppDescription = req.body.AppDescription
@@ -123,30 +121,31 @@ function EditKBApp (req, res) {
     let AppPermit_Doing = req.body.AppPermit_Doing[0].group_name
     let AppPermit_Done = req.body.AppPermit_Done[0].group_name
     
-    // if(req.body.AppPermit_Create){
-    //     AppPermit_Create = req.body.AppPermit_Create[0].group_name
-    // }
-    // if(req.body.AppPermit_Open){
-    //     AppPermit_Open = req.body.AppPermit_Open[0].group_name
-    // }
-    // if(req.body.AppPermit_toDoList){
-    //     AppPermit_toDoList = req.body.AppPermit_toDoList[0].group_name
-    // }
-    // if(req.body.AppPermit_Doing){
-    //     AppPermit_Doing = req.body.AppPermit_Doing[0].group_name
-    // }
-    // if(req.body.AppPermit_Done){
-    //     AppPermit_Done = req.body.AppPermit_Done[0].group_name
-    // }
-
-    // if(AppPermit_Create){
-    //     AppPermit_Create = req.body.AppPermit_Create[0].group_name
-    // }
-    
     user.EditKBApp(ActiveApp,AppDescription,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, (err, results)=>{
         res.send({errMsg:err, success: results})
     })
 
 }
 
-module.exports = {updateOwnEmail, updateOwnPassword, updateAllUsers, updateTaskState_LeftBTN, updateTaskState_RightBTN, EditKBApp}
+function EditKBTask (req, res) {
+
+    //Unpack Data
+    let TaskName = req.body.TaskName
+    let TaskDescription = req.body.TaskDescription
+
+    var TaskPlan 
+    
+    if(req.body.TaskPlan){
+        TaskPlan = req.body.TaskPlan[0]
+    }
+    if(TaskPlan){
+        TaskPlan = TaskPlan.Plan_MVPName
+    }
+    
+    user.EditKBApp(TaskName,TaskDescription,TaskPlan, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+module.exports = {updateOwnEmail, updateOwnPassword, updateAllUsers, updateTaskState_LeftBTN, updateTaskState_RightBTN, EditKBApp, EditKBTask}
