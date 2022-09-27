@@ -380,7 +380,6 @@ function KanbanBoardPage(props){
             setTaskTableRefreshAfterBTN(true)
         }
         if((selectedTaskData_RightBTN) && (selectedTaskData_RightBTN.Task_state == "Doing")){
-            console.log("???")
             fetch('http://localhost:8080/sendMail', {
                 method: 'POST',
                 headers: {
@@ -418,18 +417,45 @@ function KanbanBoardPage(props){
     const [AppPermit_Doing, setAppPermit_Doing] = useState();
     const [AppPermit_Done, setAppPermit_Done] = useState();
 
+    const [AppDescription_Edit, setAppDescription_Edit] = useState();
+    const [AppPermit_Create_Edit, setAppPermit_Create_Edit] = useState();
+    const [AppPermit_Open_Edit, setAppPermit_Open_Edit] = useState();
+    const [AppPermit_toDoList_Edit, setAppPermit_toDoList_Edit] = useState();
+    const [AppPermit_Doing_Edit, setAppPermit_Doing_Edit] = useState();
+    const [AppPermit_Done_Edit, setAppPermit_Done_Edit] = useState();
+    const [AppStartDate_Edit, setAppStartDate_Edit] = useState();
+    const [AppEndDate_Edit, setAppEndDate_Edit] = useState();
+    useEffect(()=>{
+        if(ActiveAppData){
+            setAppDescription_Edit(ActiveAppData.App_Description)
+            setAppPermit_Create_Edit([{group_name:ActiveAppData.App_permit_Create}])
+            setAppPermit_Open_Edit([{group_name:ActiveAppData.App_permit_Open}])
+            setAppPermit_toDoList_Edit([{group_name:ActiveAppData.App_permit_toDoList}])
+            setAppPermit_Doing_Edit([{group_name:ActiveAppData.App_permit_Doing}])
+            setAppPermit_Done_Edit([{group_name:ActiveAppData.App_permit_Done}])
+            setAppStartDate_Edit(UnpackDateForInput(ActiveAppData.App_startDate))
+            setAppEndDate_Edit(UnpackDateForInput(ActiveAppData.App_endDate))
+        }
+    },[ActiveAppData])
+
     //~~~~~~~~~~~~~~~~ Plan Set State ~~~~~~~~~~~~~~~~
     const [PlanMVPName, setPlanMVPName] = useState();
     const [PlanStartDate, setPlanStartDate] = useState();
     const [PlanEndDate, setPlanEndDate] = useState();
     const [PlanAppAcronym, setPlanAppAcronym] = useState();
+    const [SelectedAppStartDate, setSelectedAppStartDate] = useState();
+    const [SelectedAppEndDate, setSelectedAppEndDate] = useState();
         //Temp mySQL data, replace ActiveApp with AppAcronym
     useEffect(()=>{
         setPlanAppAcronym(ActiveAppData? ActiveAppData.App_Acronym:"-")
     },[ActiveAppData])
         //Temp mySQL data, retrieve App Start & End and set it here
-    var SelectedAppStartDate = "2022-08-01"
-    var SelectedAppEndDate = "2022-10-31"
+    useEffect(()=>{
+        if(ActiveAppData){
+            setSelectedAppStartDate(UnpackDateForInput(ActiveAppData.App_startDate))
+            setSelectedAppEndDate(UnpackDateForInput(ActiveAppData.App_endDate))
+        }
+    },[ActiveAppData])
 
     //~~~~~~~~~~~~~~~~ Task Set State ~~~~~~~~~~~~~~~~
     const [TaskName, setTaskName] = useState();
@@ -861,8 +887,130 @@ function KanbanBoardPage(props){
             {/* ================ Edit App Popup display ================ */}
             {isOpen_EditApp && <Popup
                 content={<>
-                <b>Editing App</b>
-                <p><button onClick={()=>{console.log("test edit app", ActiveApp)}}>Save</button></p>
+                <>
+                        <form onSubmit={(e)=>{e.preventDefault(); HandleSave.SaveEditApp(ActiveApp,AppDescription_Edit,AppStartDate_Edit,AppEndDate_Edit,AppPermit_Create_Edit,AppPermit_Open_Edit,AppPermit_toDoList_Edit,AppPermit_Doing_Edit,AppPermit_Done_Edit
+                            ,(update_status)=>{
+                                if(update_status.success){
+                                    toast.success("Update Successful", {hideProgressBar:true})
+                                    setRetriveUpdatedAllAppData(true)
+                                    togglePopup_EditApp()
+                                }
+                                else{
+                                    console.log(update_status.errMsg)
+                                }
+                            }
+                        )}}>
+                            {/*Edit App Input Field*/}
+                            <p><u><b>Editing App: </b></u></p>
+                            <div>App: <b><mark style={{backgroundColor:"lightblue"}}>{ActiveApp}</mark></b></div>
+                            <br/>
+                            <div>Running No.: {ActiveAppData.App_Rnumber}</div>
+                            <br/>
+                            <div className='col-7'>*Start Date: <input type="date" id="startdate" name="startdate" value={AppStartDate_Edit} max={UnpackDateForInput(AppEndDate_Edit)} onChange={e => setAppStartDate_Edit(e.target.value)}/></div>
+                            <div className='col-7'>*End Date: <input type="date" id="enddate" name="enddate" value={AppEndDate_Edit} min={UnpackDateForInput(AppStartDate_Edit)} onChange={e => setAppEndDate_Edit(e.target.value)}/></div>
+                            <br/>
+                            <div className='col-6'>
+                                <div className='col-11' style={{marginTop:"15px"}}>*Create:</div>
+                                <div className='col-11' style={{marginTop:"15px"}}>*Open:</div>
+                                <div className='col-11' style={{marginTop:"15px"}}>*To Do:</div>
+                                <div className='col-11' style={{marginTop:"15px"}}>*Doing:</div>
+                                <div className='col-11' style={{marginTop:"15px"}}>*Done:</div>
+                            </div>
+                            <div className='col-6' style={{marginTop:"1px"}}>
+                                <div className='col-11'>
+                                    <Multiselect
+                                        placeholder="Select Group"
+                                        hidePlaceholder='true'
+                                        displayValue="group_name"
+                                        onRemove={(selection) => {
+                                            setAppPermit_Create_Edit(selection)
+                                        }}
+                                        onSelect={(selection) => {
+                                            setAppPermit_Create_Edit(selection)
+                                        }}
+                                        options={ResultAllG.GroupData.filter(item => item.group_name !== 'admin')}
+                                        selectedValues={AppPermit_Create_Edit}
+                                        showCheckbox
+                                        selectionLimit={1}
+                                    />
+                                </div>
+                                <div className='col-11'>
+                                    <Multiselect
+                                        placeholder="Select Group"
+                                        hidePlaceholder='true'
+                                        displayValue="group_name"
+                                        onRemove={(selection) => {
+                                            setAppPermit_Open_Edit(selection)
+                                        }}
+                                        onSelect={(selection) => {
+                                            setAppPermit_Open_Edit(selection)
+                                        }}
+                                        options={ResultAllG.GroupData.filter(item => item.group_name !== 'admin')}
+                                        selectedValues={AppPermit_Open_Edit}
+                                        showCheckbox
+                                        selectionLimit={1}
+                                    />
+                                </div>
+                                <div className='col-11'>
+                                    <Multiselect
+                                        placeholder="Select Group"
+                                        hidePlaceholder='true'
+                                        displayValue="group_name"
+                                        onRemove={(selection) => {
+                                            setAppPermit_toDoList_Edit(selection)
+                                        }}
+                                        onSelect={(selection) => {
+                                            setAppPermit_toDoList_Edit(selection)
+                                        }}
+                                        options={ResultAllG.GroupData.filter(item => item.group_name !== 'admin')}
+                                        selectedValues={AppPermit_toDoList_Edit}
+                                        showCheckbox
+                                        selectionLimit={1}
+                                    />
+                                </div>
+                                <div className='col-11'>
+                                    <Multiselect
+                                        placeholder="Select Group"
+                                        hidePlaceholder='true'
+                                        displayValue="group_name"
+                                        onRemove={(selection) => {
+                                            setAppPermit_Doing_Edit(selection)
+                                        }}
+                                        onSelect={(selection) => {
+                                            setAppPermit_Doing_Edit(selection)
+                                        }}
+                                        options={ResultAllG.GroupData.filter(item => item.group_name !== 'admin')}
+                                        selectedValues={AppPermit_Doing_Edit}
+                                        showCheckbox
+                                        selectionLimit={1}
+                                    />
+                                </div>
+                                <div className='col-11'>
+                                    <Multiselect
+                                        placeholder="Select Group"
+                                        hidePlaceholder='true'
+                                        displayValue="group_name"
+                                        onRemove={(selection) => {
+                                            setAppPermit_Done_Edit(selection)
+                                        }}
+                                        onSelect={(selection) => {
+                                            setAppPermit_Done_Edit(selection)
+                                        }}
+                                        options={ResultAllG.GroupData.filter(item => item.group_name !== 'admin')}
+                                        selectedValues={AppPermit_Done_Edit}
+                                        showCheckbox
+                                        selectionLimit={1}
+                                    />
+                                </div>
+                            </div>
+                            <textarea style={{ resize: 'none', overflow:'auto', marginTop:"15px"}} id='description' rows="4" cols="100" className="form-control" onChange={e => setAppDescription_Edit(e.target.value)}>{ActiveAppData.App_Description}</textarea>
+                            <p style={{fontSize:"small"}}>
+                                *Fields cannot be empty
+                                {/*Buttons*/}
+                                <button style={{marginTop:"15px", float:"right"}} type="submit" href="#">Save</button>
+                            </p>
+                        </form>
+                    </>
                 </>}
                 handleClose={togglePopup_EditApp}
             />}

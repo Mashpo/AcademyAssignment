@@ -107,4 +107,46 @@ function updateTaskState_RightBTN (req, res) {
 
 }
 
-module.exports = {updateOwnEmail, updateOwnPassword, updateAllUsers, updateTaskState_LeftBTN, updateTaskState_RightBTN}
+function EditKBApp (req, res) {
+
+    console.log(req.body)
+
+    //Unpack Data
+    let ActiveApp = req.body.ActiveApp
+    let AppDescription = req.body.AppDescription
+    let AppStartDate = req.body.AppStartDate
+    let AppEndDate = req.body.AppEndDate
+
+    let AppPermit_Create = req.body.AppPermit_Create[0].group_name
+    let AppPermit_Open = req.body.AppPermit_Open[0].group_name
+    let AppPermit_toDoList = req.body.AppPermit_toDoList[0].group_name
+    let AppPermit_Doing = req.body.AppPermit_Doing[0].group_name
+    let AppPermit_Done = req.body.AppPermit_Done[0].group_name
+    
+    // if(req.body.AppPermit_Create){
+    //     AppPermit_Create = req.body.AppPermit_Create[0].group_name
+    // }
+    // if(req.body.AppPermit_Open){
+    //     AppPermit_Open = req.body.AppPermit_Open[0].group_name
+    // }
+    // if(req.body.AppPermit_toDoList){
+    //     AppPermit_toDoList = req.body.AppPermit_toDoList[0].group_name
+    // }
+    // if(req.body.AppPermit_Doing){
+    //     AppPermit_Doing = req.body.AppPermit_Doing[0].group_name
+    // }
+    // if(req.body.AppPermit_Done){
+    //     AppPermit_Done = req.body.AppPermit_Done[0].group_name
+    // }
+
+    // if(AppPermit_Create){
+    //     AppPermit_Create = req.body.AppPermit_Create[0].group_name
+    // }
+    
+    user.EditKBApp(ActiveApp,AppDescription,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, (err, results)=>{
+        res.send({errMsg:err, success: results})
+    })
+
+}
+
+module.exports = {updateOwnEmail, updateOwnPassword, updateAllUsers, updateTaskState_LeftBTN, updateTaskState_RightBTN, EditKBApp}

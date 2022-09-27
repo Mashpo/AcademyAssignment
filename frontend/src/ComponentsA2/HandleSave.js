@@ -90,4 +90,31 @@ async function SaveCreateTask(App_Rnumber, TaskName,TaskDescription,TaskNotes,Ta
     }
 }
 
-export default {SaveCreateApp, SaveCreatePlan, SaveCreateTask};
+async function SaveEditApp(ActiveApp,AppDescription,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, callback){
+    
+    let validity = 1
+
+    if(!AppStartDate || !AppEndDate || !AppPermit_Create || !AppPermit_Open || !AppPermit_toDoList || !AppPermit_Doing || !AppPermit_Done){
+        toast.warn("Empty Compulsory Fields", {hideProgressBar:true})
+        validity = 0
+    }
+    
+    if (validity === 1){
+        await fetch('http://localhost:8080/EditKBApp',{
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            },
+            // POST content
+            body: JSON.stringify({ActiveApp:ActiveApp,AppDescription:AppDescription,AppStartDate:AppStartDate,AppEndDate:AppEndDate,AppPermit_Create:AppPermit_Create,AppPermit_Open:AppPermit_Open,AppPermit_toDoList:AppPermit_toDoList,AppPermit_Doing:AppPermit_Doing,AppPermit_Done:AppPermit_Done})
+        })
+        // Server returns response from the credentials
+            //.send sends the object as a string so after recieving the data, .json makes it back into an object
+        .then(async (res) => { 
+            const update_status = await res.json()
+            callback(update_status)
+        }) 
+    }
+}
+export default {SaveCreateApp, SaveCreatePlan, SaveCreateTask, SaveEditApp};

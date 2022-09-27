@@ -181,7 +181,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
 
                     <div className='col-6'>
                     {/*============ Edit Task Button ============*/}
-                    <button 
+                    {(((row.Task_state==="Open")&&PermitShiftTaskFromOpen) || ((row.Task_state==="ToDo")&&PermitShiftTaskFromToDo) || ((row.Task_state==="Doing")&&PermitShiftTaskFromDoing) || ((row.Task_state==="Done")&&PermitShiftTaskFromDone)) && (<button 
                         style={{
                             float:"right"
                             ,marginInline: "5px"
@@ -203,7 +203,7 @@ function TaskDisplayTemplate(data, setIsOpen_AuditTrail, isOpen_AuditTrail, setS
                         onMouseLeave={()=>{setIsHover5(false); setIsHover6(row.Task_name)}}
                     >
                         Edit Task
-                    </button>
+                    </button>)}
 
                     {/*============ Audit Trail Button ============*/}
                     <button 

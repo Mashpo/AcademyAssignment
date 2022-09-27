@@ -282,6 +282,84 @@ module.exports.updateAllUsers = (username, password, email, active_status, group
     })
 }
 
+module.exports.EditKBApp = (ActiveApp,AppDescription,AppStartDate,AppEndDate,AppPermit_Create,AppPermit_Open,AppPermit_toDoList,AppPermit_Doing,AppPermit_Done, callback) => {
+    
+    //String and variables if required
+    var set_fields = []
+    var set_vars = []
+    
+    //App_Description
+    if(AppDescription){
+        set_fields.push("App_Description = ?")
+        set_vars.push(AppDescription)
+    }
+    if(!AppDescription){
+        AppDescription = ""
+        set_fields.push("App_Description = ?")
+        set_vars.push(AppDescription)
+    }
+
+    //App_startDate
+    if(AppStartDate){
+        set_fields.push("App_startDate = ?")
+        set_vars.push(AppStartDate)
+    }
+
+    //App_endDate
+    if(AppEndDate){
+        set_fields.push("App_endDate = ?")
+        set_vars.push(AppEndDate)
+    }
+
+    //App_permit_Create
+    if(AppPermit_Create){
+        set_fields.push("App_permit_Create = ?")
+        set_vars.push(AppPermit_Create)
+    }
+
+    //App_permit_Open
+    if(AppPermit_Open){
+        set_fields.push("App_permit_Open = ?")
+        set_vars.push(AppPermit_Open)
+    }
+
+    //App_permit_toDoList
+    if(AppPermit_toDoList){
+        set_fields.push("App_permit_toDoList = ?")
+        set_vars.push(AppPermit_toDoList)
+    }
+
+    //App_permit_Doing
+    if(AppPermit_Doing){
+        set_fields.push("App_permit_Doing = ?")
+        set_vars.push(AppPermit_Doing)
+    }
+
+    //App_permit_Done
+    if(AppPermit_Done){
+        set_fields.push("App_permit_Done = ?")
+        set_vars.push(AppPermit_Done)
+    }
+
+    set_vars.push(ActiveApp)
+
+    let query = mysql.format(
+        "UPDATE nodelogin.application SET " + set_fields.toString() + " WHERE App_Acronym = ?",
+        set_vars
+    )
+
+    console.log(query)
+
+    db.query(query, (err,result)=>{
+        if (err) {
+            callback(err.sqlMessage, false);
+        } else {
+            callback(null, true)
+        }
+        
+    })
+}
+
 module.exports.updateTaskState_LeftRightBTN = (Username, Task_name, TaskStateToSet, Task_notes_updated, callback) => {
     
     // Query
