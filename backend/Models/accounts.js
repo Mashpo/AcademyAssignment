@@ -70,7 +70,7 @@ module.exports.checkLogin = (username, password, callback) => {
             // Incorrect password
             else {
                 console.log("login unsuccessful")
-                return callback(err, false)
+                return callback(null, false)
             }
         
         }
@@ -171,6 +171,26 @@ module.exports.GetUserData = (username, getWhich, callback) => {
            callback(null, result[0])
         }
     })
+}
+
+module.exports.GetTaskData = (value, getWhich, callback) => {
+
+    // Query
+    let query = mysql.format(
+       'select ' + getWhich + ' from task where ' + getWhich + ' = ?',
+       [value]
+   )
+
+   // Querying
+   db.query(query, (err,result)=>{
+       //Error
+       if (err) {
+           callback(err.sqlMessage, null);
+       } 
+       else{
+          callback(null, result[0])
+       }
+   })
 }
 
 module.exports.getAllExceptSelf = (username, callback) => {
@@ -656,6 +676,24 @@ module.exports.getAllKBApp = (callback) => {
     })
 }
 
+module.exports.getOneKBApp = (App_Acronym, callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT App_Acronym,App_Description,App_Rnumber,App_startDate,App_endDate,App_permit_Create,App_permit_Open,App_permit_toDoList,App_permit_Doing,App_permit_Done FROM application WHERE App_Acronym = ?`,
+        [App_Acronym]
+    )
+ 
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
 module.exports.getAllKBPlan = (callback) => {
 
     // Query
@@ -673,11 +711,65 @@ module.exports.getAllKBPlan = (callback) => {
     })
 }
 
+module.exports.getOneKBPlan = (Plan_MVP_name, callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_app_Acronym FROM plan WHERE Plan_MVP_name=?`,
+        [Plan_MVP_name]
+    )
+ 
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
 module.exports.getAllKBTask = (callback) => {
 
     // Query
     let query = mysql.format(
         `SELECT Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate FROM task`
+    )
+ 
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
+module.exports.getAllKBTask_Task_app_Acronym = (Task_app_Acronym, callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate FROM task WHERE Task_app_Acronym`,
+        [Task_app_Acronym]
+    )
+ 
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
+module.exports.getOneKBTask = (Task_name, callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate FROM task WHERE Task_name=?`,
+        [Task_name]
     )
  
     // Querying

@@ -9,6 +9,7 @@ var UpdateDataControl = require("../Controllers/UpdateData_Control")
 var InsertData_Control = require("../Controllers/InsertData_Control")
 var CheckGroup_Control = require("../Controllers/CheckGroup_Control")
 var Mail_Control = require("../Controllers/Mail_Control")
+var Assignment3_RestAPI_Control = require("../Controllers/Assignment3_RestAPI_Control")
 
 // const cors = require("cors");
 const { application } = require("express");
@@ -21,6 +22,13 @@ var router = express.Router();
 //Checking if user is login into to database side
 router.use((req,res,next) => {
     res.locals.currentUser = req.user;
+    // Decoding URI
+    try {
+        decodeURIComponent(req.path)
+    }
+    catch {
+        return res.send({code: 400})
+    }
     next();
 });
 
@@ -65,6 +73,12 @@ router.post("/CreateKBTask", InsertData_Control.CreateKBTask)
 //Mail with nodemailer
 router.post("/sendMail", Mail_Control)
 
-
+//Assignment 3 - Rest API
+router.post("/api/CreateTask", Assignment3_RestAPI_Control.apiCreateTask)
+router.post("/api/GetTaskByState", Assignment3_RestAPI_Control.apiGetTaskByState)
+router.post("/api/PromoteTask2Done", Assignment3_RestAPI_Control.apiPromoteTask2Done)
+router.post("/api/*", (req, res)=>{
+    return res.send({code: 400})
+})
 
 module.exports = router;
