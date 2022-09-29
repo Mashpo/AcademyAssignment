@@ -750,10 +750,46 @@ module.exports.getAllKBTask_Task_app_Acronym = (Task_app_Acronym, callback) => {
 
     // Query
     let query = mysql.format(
-        `SELECT Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate FROM task WHERE Task_app_Acronym`,
+        `SELECT Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate FROM task WHERE Task_app_Acronym=?`,
         [Task_app_Acronym]
     )
  
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
+module.exports.getAllKBTask_Task_state = (Task_state, callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate FROM task WHERE Task_state=?`,
+        [Task_state]
+    )
+
+    // Querying
+    db.query(query, (err, result) => {
+        if (err) {
+            callback(err.sqlMessage, null);
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
+module.exports.getAllKBTask_Task_name = (Task_name, callback) => {
+
+    // Query
+    let query = mysql.format(
+        `SELECT Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate FROM task WHERE Task_name=?`,
+        [Task_name]
+    )
+
     // Querying
     db.query(query, (err, result) => {
         if (err) {
