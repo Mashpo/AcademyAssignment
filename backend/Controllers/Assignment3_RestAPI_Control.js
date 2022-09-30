@@ -140,7 +140,7 @@ function apiGetTaskByState (req, res){
             //found Task App Acronym
             //Retrieving
             user.getAllKBTask_Task_state(Task_state, (err, AllTask_Task_state_results)=>{
-                return res.send({code: 200})
+                return res.send({code: 200, results: AllTask_Task_state_results})
             })
         })
     })
@@ -150,13 +150,16 @@ function apiPromoteTask2Done (req, res){
     let bodyKeys = Object.keys(req.body)
     if(!bodyKeys.includes("username") || 
         !bodyKeys.includes("password") || 
-        !bodyKeys.includes("Task_name") ){
+        !bodyKeys.includes("Task_name") || 
+        !bodyKeys.includes("Task_app_Acronym")){
             return res.send({code: 400})
         }
 
     let username = req.body.username
     let password = req.body.password
     let Task_name = req.body.Task_name
+    let Task_app_Acronym = req.body.Task_app_Acronym
+
 
     if(!password.trim() || !username.trim() || !Task_name.trim()){
         return res.send({code: 411})
@@ -176,14 +179,24 @@ function apiPromoteTask2Done (req, res){
         }
 
         // Login pass
+        //Finding All Task with name similar to the one from the input field
         user.getAllKBTask_Task_name(Task_name, (err, AllTask_Task_name_results)=>{
             //Task Name not found
             if(AllTask_Task_name_results.length===0){
                 return res.send({code: 404})
             }
             //found Task Name
-            //Checking if current state is at "TaskDoing"
-            if(Task_name!="TaskDoing"){
+            //Finding Task that has similar Task App Acronym as the input field
+            let filtered = AllTask_Task_name_results.filter((row)=>{
+                return row["Task_app_Acronym"] === Task_app_Acronym
+            })
+            //Task_Name with indicated Task App Acronym NOT found
+            if(filtered.length===0){
+                return res.send({code: 404})
+            }
+            //Task_Name with indicated Task App Acronym FOUND
+            //Checking if current state is at "Doing" state
+            if(filtered[0].Task_state!="Doing"){
                 return res.send({code: 406})
             }
             Mail_Control({body:{Username: username, Task_name: Task_name}})
