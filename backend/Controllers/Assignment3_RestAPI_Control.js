@@ -187,20 +187,20 @@ function apiPromoteTask2Done (req, res){
             }
             //found Task Name
             //Finding Task that has similar Task App Acronym as the input field
-            let filtered = AllTask_Task_name_results.filter((row)=>{
+            let filtered_Task_app_Acronym = AllTask_Task_name_results.filter((row)=>{
                 return row["Task_app_Acronym"] === Task_app_Acronym
             })
             //Task_Name with indicated Task App Acronym NOT found
-            if(filtered.length===0){
+            if(filtered_Task_app_Acronym.length===0){
                 return res.send({code: 404})
             }
             //Task_Name with indicated Task App Acronym FOUND
             //Checking if current state is at "Doing" state
-            if(filtered[0].Task_state!="Doing"){
+            if(filtered_Task_app_Acronym[0].Task_state!="Doing"){
                 return res.send({code: 406})
             }
             Mail_Control({body:{Username: username, Task_name: Task_name}})
-            return res.send({code: 200})
+            return res.send({code: 200, msg: "Email sent"})
         })
 
     })
